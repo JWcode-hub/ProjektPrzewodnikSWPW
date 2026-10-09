@@ -1,5 +1,6 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PrzewodnikSWPW.Web.Data;
 
@@ -46,6 +47,24 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+// Dane początkowe budynku A — wyłącznie w środowisku deweloperskim. Gdy baza nie istnieje,
+// aplikacja i tak startuje: strony bez zapytań do bazy działają, a w logu jest wskazówka.
+if (app.Environment.IsDevelopment())
+{
+    using var zakres = app.Services.CreateScope();
+    try
+    {
+        await DbSeeder.ZasiejAsync(zakres.ServiceProvider.GetRequiredService<PrzewodnikDbContext>());
+    }
+    // Brak bazy albo tabel: EF zgłasza SqlException bezpośrednio albo opakowany. Błąd w samych danych
+    // (DbUpdateException) nie jest tu łapany — ma zatrzymać start.
+    catch (Exception blad) when (blad is SqlException || blad.InnerException is SqlException)
+    {
+        app.Logger.LogError(blad,
+            "Nie udało się wstawić danych początkowych. Sprawdź, czy baza istnieje: „dotnet ef database update”.");
+    }
+}
 
 app.Run();
 
