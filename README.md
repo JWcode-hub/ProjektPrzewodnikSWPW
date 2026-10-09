@@ -24,6 +24,9 @@ dotnet tool restore
 dotnet ef database update
 ```
 
+Dane początkowe (zachodnia część parteru budynku A) wstawiają się same przy pierwszym uruchomieniu
+aplikacji w środowisku deweloperskim; kolejne uruchomienia niczego nie dublują.
+
 Bez łańcucha połączenia aplikacja nie wystartuje i wypisze komunikat odsyłający do tej sekcji.
 
 ## Uruchomienie lokalne
