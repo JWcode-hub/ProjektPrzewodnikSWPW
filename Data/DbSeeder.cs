@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PrzewodnikSWPW.Web.Models;
+using PrzewodnikSWPW.Web.Services;
 
 namespace PrzewodnikSWPW.Web.Data;
 
@@ -171,7 +172,7 @@ public static class DbSeeder
                 CzyDostepnyBezSchodow = rodzaj != RodzajPrzejscia.Schody,
             };
 
-            var para = (Nowy(z, @do, azymut, opisTam), Nowy(@do, z, (azymut + 180) % 360, opisZPowrotem));
+            var para = (Nowy(z, @do, azymut, opisTam), Nowy(@do, z, Azymuty.Normalizuj(azymut + 180), opisZPowrotem));
             pary.Add(para);
             kierunki.Add(para.Item1);
             kierunki.Add(para.Item2);
