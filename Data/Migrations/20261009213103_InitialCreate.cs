@@ -253,6 +253,7 @@ namespace PrzewodnikSWPW.Web.Data.Migrations
                     Waga = table.Column<decimal>(type: "decimal(6,2)", precision: 6, scale: 2, nullable: false),
                     RodzajPrzejscia = table.Column<byte>(type: "tinyint", nullable: false),
                     OpisPrzejscia = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: true),
+                    NotatkaDojscia = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     CzyAktywny = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     CzyDostepnyBezSchodow = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     KierunekPowrotnyId = table.Column<int>(type: "int", nullable: true)

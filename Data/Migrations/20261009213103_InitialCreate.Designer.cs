@@ -12,7 +12,7 @@ using PrzewodnikSWPW.Web.Data;
 namespace PrzewodnikSWPW.Web.Data.Migrations
 {
     [DbContext(typeof(PrzewodnikDbContext))]
-    [Migration("20261009211508_InitialCreate")]
+    [Migration("20261009213103_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -100,6 +100,10 @@ namespace PrzewodnikSWPW.Web.Data.Migrations
 
                     b.Property<int?>("KierunekPowrotnyId")
                         .HasColumnType("int");
+
+                    b.Property<string>("NotatkaDojscia")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("OpisPrzejscia")
                         .HasMaxLength(600)

@@ -98,6 +98,10 @@ namespace PrzewodnikSWPW.Web.Data.Migrations
                     b.Property<int?>("KierunekPowrotnyId")
                         .HasColumnType("int");
 
+                    b.Property<string>("NotatkaDojscia")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("OpisPrzejscia")
                         .HasMaxLength(600)
                         .HasColumnType("nvarchar(600)");

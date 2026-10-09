@@ -49,6 +49,16 @@ public class Kierunek
     [Display(Name = "Opis przejścia (czytany użytkownikowi)")]
     public string? OpisPrzejscia { get; set; }
 
+    /// <summary>
+    /// Uwaga dla użytkownika, gdy rzeczywisty skręt nie jest równy ćwierć obrotu (budynek o nietypowym
+    /// układzie), np. „Skręt jest łagodny, mniej więcej w połowie między prosto a w prawo”.
+    /// Azymut pozostaje wielokrotnością 90 — notatka tylko doprecyzowuje instrukcję, niczego nie wylicza.
+    /// Pisana słowami, bez stopni.
+    /// </summary>
+    [StringLength(300, ErrorMessage = Komunikaty.MaksDlugosc)]
+    [Display(Name = "Notatka o dojściu (czytana użytkownikowi)")]
+    public string? NotatkaDojscia { get; set; }
+
     /// <summary><c>false</c> = brak przejścia; kierunek nadal jest opisany jako punkt orientacyjny.</summary>
     [Display(Name = "Przejście istnieje")]
     public bool CzyAktywny { get; set; } = true;
