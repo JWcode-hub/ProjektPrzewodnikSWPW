@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PrzewodnikSWPW.Web.Data;
+using PrzewodnikSWPW.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ if (string.IsNullOrWhiteSpace(lancuchPolaczenia))
 }
 
 builder.Services.AddDbContext<PrzewodnikDbContext>(opcje => opcje.UseSqlServer(lancuchPolaczenia));
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<ISpacerRepozytorium, SpacerRepozytorium>();
+builder.Services.AddScoped<NawigacjaService>();
 
 var app = builder.Build();
 
