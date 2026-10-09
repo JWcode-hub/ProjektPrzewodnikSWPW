@@ -9,8 +9,11 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
+    app.UseExceptionHandler("/blad/500");
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/blad/{0}");
 
 app.UseHttpsRedirection();
 
