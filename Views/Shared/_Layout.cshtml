@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" data-motyw="systemowy" data-rozmiar="100">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +9,47 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <main class="container py-3">
+    @* Pierwszy element strony: pozwala ominąć nawigację klawiaturą (WCAG 2.4.1). *@
+    <a href="#tresc" class="link-pomin">Przejdź do treści głównej</a>
+
+    <header class="naglowek-serwisu">
+        <div class="container">
+            <nav aria-label="Nawigacja główna">
+                <ul class="lista-nawigacji">
+                    <li><a class="nazwa-serwisu" asp-controller="Home" asp-action="Index">Multimedialny przewodnik po Uczelni</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    @* Miejsce na dodatkową nawigację (np. menu panelu) — przed <main>, żeby link pominięcia ją omijał. *@
+    @await RenderSectionAsync("PrzedTrescia", required: false)
+
+    <main id="tresc" tabindex="-1" class="container py-3">
         @RenderBody()
+
+        @* Jedyny obszar ogłoszeń na stronie. Jest w kodzie od załadowania i jest PUSTY:
+           po pełnym przeładowaniu nic do niego nie wpisujemy (zasada ogłaszania w site.js). *@
+        <div id="komunikaty" role="status" aria-live="polite" aria-atomic="true"></div>
     </main>
+
+    <footer class="stopka-serwisu">
+        <div class="container">
+            <nav aria-label="Informacje prawne">
+                <ul class="lista-stopki">
+                    <li><a href="/deklaracja-dostepnosci">Deklaracja Dostępności</a></li>
+                    <li><a href="/skroty-klawiszowe">Skróty klawiszowe</a></li>
+                    <li><a href="/zglos-problem">Zgłoś brak dostępności</a></li>
+                    <li><a href="/polityka-prywatnosci">Polityka prywatności</a></li>
+                    <li><a href="/ustawienia">Ustawienia dostępności</a></li>
+                </ul>
+            </nav>
+            <p class="mb-0">Szkoła Wyższa im. Pawła Włodkowica w Płocku</p>
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
