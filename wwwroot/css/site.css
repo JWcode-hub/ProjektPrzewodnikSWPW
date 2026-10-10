@@ -268,7 +268,8 @@ legend {
   }
 }
 
-.formularz {
+.formularz,
+.formularz-admina {
   max-width: 45rem;
 }
 /* Wskazówka pod etykietą pola: mniejsza od etykiety, żeby było widać, co jest nazwą pola, a co objaśnieniem.
@@ -562,6 +563,68 @@ legend {
    więc tekst pod zdjęciem nie przeskakuje. */
 figure img {
   height: auto;
+}
+
+/* --- 9g. Panel administratora ---------------------------------------------- */
+.menu-admina ul {
+  list-style: none;
+  padding: 0.75rem 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  border-bottom: 2px solid var(--kolor-obramowanie);
+}
+.menu-admina a {
+  display: inline-block;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+}
+.menu-admina a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration-thickness: 0.2em;          /* bieżąca sekcja: grubsze podkreślenie i pogrubienie, nie sam kolor */
+}
+.pole--wybor .form-check {
+  min-height: 2.75rem;
+}
+.tabela-admina {
+  --bs-table-color: var(--kolor-tekst);
+  --bs-table-bg: var(--kolor-tlo);
+  --bs-table-border-color: var(--kolor-obramowanie);
+}
+.tabela-admina caption {
+  caption-side: top;
+  color: var(--kolor-tekst);
+  font-weight: 700;
+}
+.dzialania {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+.dzialania a {
+  display: inline-block;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+}
+.tabela-przewijana {
+  overflow-x: auto;
+}
+.json {
+  color: var(--kolor-tekst);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.formularz-wylogowania {
+  display: inline;
+}
+
+/* Logowanie, panel i wylogowanie przy prawej krawędzi; po zawinięciu listy — od lewej, jak reszta. */
+.nawigacja-konto {
+  margin-left: auto;
 }
 
 /* --- 10. Ruch --------------------------------------------------------------- */

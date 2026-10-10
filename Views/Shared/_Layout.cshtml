@@ -34,10 +34,29 @@
         <div class="container">
             <nav aria-label="Nawigacja główna">
                 <ul class="lista-nawigacji">
-                    <li><a class="nazwa-serwisu" asp-controller="Home" asp-action="Index">Multimedialny przewodnik po Uczelni</a></li>
-                    <li><a asp-controller="Spacer" asp-action="Index">Spacer po budynkach</a></li>
-                    <li><a asp-controller="Szukaj" asp-action="Index">Szukaj sali</a></li>
-                    <li><a asp-controller="Trasa" asp-action="Index">Wyznacz trasę</a></li>
+                    <li><a class="nazwa-serwisu" asp-area="" asp-controller="Home" asp-action="Index">Multimedialny przewodnik po Uczelni</a></li>
+                    <li><a asp-area="" asp-controller="Spacer" asp-action="Index">Spacer po budynkach</a></li>
+                    <li><a asp-area="" asp-controller="Szukaj" asp-action="Index">Szukaj sali</a></li>
+                    <li><a asp-area="" asp-controller="Trasa" asp-action="Index">Wyznacz trasę</a></li>
+                    @* Pozycje konta na końcu listy i przy prawej krawędzi (klasa nawigacja-konto na pierwszej z nich). *@
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        var administrator = User.IsInRole(Role.Administrator);
+                        @if (administrator)
+                        {
+                            <li class="nawigacja-konto"><a asp-area="Admin" asp-controller="Panel" asp-action="Index">Panel administratora</a></li>
+                        }
+                        <li class="@(administrator ? null : "nawigacja-konto")">
+                            <form method="post" asp-area="" asp-controller="Konto" asp-action="Wylogowanie" class="formularz-wylogowania">
+                                <button type="submit" class="btn btn-secondary btn-sm">Wyloguj się<span class="visually-hidden"> (@User.Identity.Name)</span></button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        @* /admin wymaga logowania, więc niezalogowanego przenosi na stronę logowania i wraca po niej do panelu. *@
+                        <li class="nawigacja-konto"><a asp-area="Admin" asp-controller="Panel" asp-action="Index">Zaloguj się do panelu administratora</a></li>
+                    }
                 </ul>
             </nav>
         </div>
@@ -67,7 +86,7 @@
             </nav>
 
             @* Przełącznik motywu na każdej stronie. Bez automatycznego wysyłania po zmianie (WCAG 3.2.2). *@
-            <form method="post" asp-controller="Ustawienia" asp-action="Motyw" class="przelacznik-motywu">
+            <form method="post" asp-area="" asp-controller="Ustawienia" asp-action="Motyw" class="przelacznik-motywu">
                 <input type="hidden" name="powrot" value="@powrot" />
                 <label for="stopka-motyw">Motyw kolorystyczny</label>
                 <select id="stopka-motyw" name="motyw" class="form-select">

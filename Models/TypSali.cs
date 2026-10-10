@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrzewodnikSWPW.Web.Models;
 
-public class TypSali
+public class TypSali : ISlownik
 {
     public int Id { get; set; }
 
