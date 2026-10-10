@@ -24,8 +24,8 @@ dotnet tool restore
 dotnet ef database update
 ```
 
-Dane początkowe (zachodnia część parteru budynku A) wstawiają się same przy pierwszym uruchomieniu
-aplikacji w środowisku deweloperskim; kolejne uruchomienia niczego nie dublują.
+Dane budynków wczytują się same z pliku `Dane/przewodnik.json` przy pierwszym uruchomieniu aplikacji,
+jeśli w bazie nie ma jeszcze żadnego budynku. Danych, które już są w bazie, aplikacja nigdy nie nadpisuje.
 
 Bez łańcucha połączenia aplikacja nie wystartuje i wypisze komunikat odsyłający do tej sekcji.
 
@@ -78,8 +78,28 @@ nowego budynku:
 6. **Zdjęcia** punktów i sal — z tekstem alternatywnym, źródłem i licencją.
 7. W edycji budynku wybierz **punkt wejścia głównego**.
 8. **Walidacja grafu** — sprawdza, czy z każdego miejsca da się wrócić i czy do każdego da się dojść.
+9. **Dane w repozytorium** — zapisuje dane do pliku, który zatwierdzasz w repozytorium.
 
 Rekordów się nie usuwa, tylko dezaktywuje. Każda zmiana trafia do rejestru zmian.
+
+## Dane w repozytorium
+
+Baza danych leży poza katalogiem projektu, więc git jej nie widzi. Dane budynków przenosi plik
+`Dane/przewodnik.json`, a zdjęcia — katalog `wwwroot/media/zdjecia/`. Oba są w repozytorium.
+
+**Po wprowadzeniu albo zmianie danych w panelu:**
+
+1. W panelu uruchom **Walidację grafu** i popraw błędy krytyczne.
+2. W panelu wybierz **Dane w repozytorium → Zapisz dane do pliku**.
+3. Zatwierdź w repozytorium plik `Dane/przewodnik.json` i nowe pliki w `wwwroot/media/zdjecia/`.
+
+**Na innym komputerze:** po `dotnet ef database update` i pierwszym uruchomieniu aplikacja wczyta plik sama.
+Żeby wczytać nowszą wersję pliku do bazy, która ma już dane, trzeba zacząć od pustej bazy
+(`dotnet ef database drop`, potem `dotnet ef database update`) — niezapisane do pliku zmiany w tej bazie przepadną.
+
+W pliku są budynki, piętra, punkty ruchu, kierunki, sale, typy sal, udogodnienia i opisy zdjęć.
+Nie ma w nim kont, haseł, zgłoszeń dostępności ani rejestru zmian. Rekordy wskazują na siebie kodami punktów
+i symbolami sal, więc plik da się czytać i porównywać w gicie.
 
 ## Konfiguracja
 
@@ -91,6 +111,7 @@ pliku `appsettings.json`. Puste wartości strona pokazuje jako „do uzupełnien
 | `ConnectionStrings:Default` | łańcuch połączenia z bazą | brak — wymagany |
 | `Zdjecia:KatalogMedia` | katalog wgrywanych zdjęć, serwowany pod `/media` | `wwwroot/media` |
 | `Zdjecia:MaksRozmiarMB` | limit rozmiaru zdjęcia | 3 |
+| `Przewodnik:PlikDanych` | plik z danymi budynków | `Dane/przewodnik.json` |
 | `Przewodnik:KatalogLogow` | katalog dziennika zdarzeń | `logs` |
 | `Przewodnik:KontaktAlternatywny` | opis, telefon i e-mail portierni | sam opis |
 

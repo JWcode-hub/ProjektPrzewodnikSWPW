@@ -8,7 +8,7 @@ namespace PrzewodnikSWPW.Web.Data;
 /// <summary>
 /// Unieważnia graf budynku w pamięci po każdej zapisanej zmianie danych, z których jest zbudowany
 /// (punkty, kierunki, sale, utrudnienia, piętra, budynki). Działa dla każdego zapisu — panelu
-/// administratora, seedera i importu — więc nie da się o nim zapomnieć w nowym kontrolerze.
+/// administratora i wczytania danych z pliku — więc nie da się o nim zapomnieć w nowym kontrolerze.
 /// </summary>
 public sealed class UniewaznianieGrafuInterceptor(IGrafBudynkuCache grafy) : SaveChangesInterceptor
 {

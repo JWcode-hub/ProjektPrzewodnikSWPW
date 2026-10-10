@@ -483,7 +483,6 @@ $RECYCLE.BIN/
 # Sekrety lokalne: łańcuch połączenia i konto deweloperskie nigdy nie trafiają do repozytorium.
 appsettings.Development.json
 # Zdjęcia wgrywane w panelu administratora.
-wwwroot/media/zdjecia/
 # Wyniki testów.
 TestResults/
 wyniki-testow/

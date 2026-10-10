@@ -128,6 +128,10 @@ builder.Services.Configure<ZdjeciaOptions>(builder.Configuration.GetSection(Zdje
 builder.Services.AddSingleton<IMagazynZdjec, MagazynZdjec>();
 builder.Services.AddScoped<ZdjeciaService>();
 
+// Dane budynków w pliku w repozytorium: zapis z panelu, odczyt przy starcie na pustej bazie.
+builder.Services.Configure<DaneBudynkowOptions>(builder.Configuration.GetSection(DaneBudynkowOptions.Sekcja));
+builder.Services.AddScoped<DaneBudynkowService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -179,18 +183,25 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-// Role zakładamy przy każdym starcie; dane budynku A i konto deweloperskie — wyłącznie w środowisku
-// deweloperskim. Gdy baza nie istnieje, aplikacja i tak startuje: strony bez zapytań do bazy działają,
-// a w logu jest wskazówka.
+// Przy każdym starcie: role oraz — tylko gdy w bazie nie ma jeszcze żadnego budynku — dane z pliku
+// w repozytorium. Konto deweloperskie wyłącznie w środowisku deweloperskim. Gdy baza nie istnieje,
+// aplikacja i tak startuje: strony bez zapytań do bazy działają, a w logu jest wskazówka.
 using (var zakres = app.Services.CreateScope())
 {
     try
     {
         await TozsamoscSeeder.ZasiejRoleAsync(zakres.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
 
+        var dane = zakres.ServiceProvider.GetRequiredService<DaneBudynkowService>();
+        if (await dane.WczytajDoPustejBazyAsync() is { } wczytane)
+        {
+            app.Logger.LogInformation(
+                "Wczytano dane z pliku {Plik}: budynki {Budynki}, punkty ruchu {Punkty}, kierunki {Kierunki}, sale {Sale}, zdjęcia {Zdjecia}.",
+                dane.SciezkaPliku, wczytane.Budynki, wczytane.Punkty, wczytane.Kierunki, wczytane.Sale, wczytane.Zdjecia);
+        }
+
         if (app.Environment.IsDevelopment())
         {
-            await DbSeeder.ZasiejAsync(zakres.ServiceProvider.GetRequiredService<PrzewodnikDbContext>());
             await TozsamoscSeeder.ZasiejAdministratoraDevAsync(
                 zakres.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>(), app.Configuration, app.Logger);
         }

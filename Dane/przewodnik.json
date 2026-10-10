@@ -1,0 +1,530 @@
+{
+  "wersja": 1,
+  "typySal": [
+    {
+      "nazwa": "Pomieszczenie techniczne",
+      "opis": "Niedostępne dla studentów"
+    },
+    {
+      "nazwa": "Sala ćwiczeniowa",
+      "opis": "Sala do zajęć ćwiczeniowych"
+    },
+    {
+      "nazwa": "Sala komputerowa",
+      "opis": "Pracownia ze stanowiskami komputerowymi"
+    },
+    {
+      "nazwa": "Sala wykładowa",
+      "opis": "Duża sala wykładowa"
+    },
+    {
+      "nazwa": "Sekretariat",
+      "opis": "Sekretariat lub dziekanat"
+    },
+    {
+      "nazwa": "Toaleta",
+      "opis": "Toaleta"
+    }
+  ],
+  "udogodnienia": [
+    {
+      "nazwa": "Oznaczenia brajlowskie",
+      "opis": "Tabliczki z pismem Braille'a",
+      "ikona": "braille"
+    },
+    {
+      "nazwa": "Oznaczenie kontrastowe",
+      "opis": "Kontrastowe oznaczenie krawędzi",
+      "ikona": "contrast"
+    },
+    {
+      "nazwa": "Pętla indukcyjna",
+      "opis": "Wspomaganie aparatów słuchowych",
+      "ikona": "hearing"
+    },
+    {
+      "nazwa": "Pochylnia",
+      "opis": "Podjazd dla wózków",
+      "ikona": "ramp"
+    },
+    {
+      "nazwa": "Ścieżka dotykowa",
+      "opis": "Prowadząca faktura w posadzce",
+      "ikona": "path"
+    },
+    {
+      "nazwa": "Winda",
+      "opis": "Winda osobowa z sygnalizacją głosową",
+      "ikona": "elevator"
+    }
+  ],
+  "budynki": [
+    {
+      "kod": "A",
+      "nazwa": "Budynek A — Szkoła Wyższa im. Pawła Włodkowica",
+      "adres": "al. Kilińskiego 12, 09-402 Płock",
+      "opisDostepnosciArchitektonicznej": "Wejście główne od strony ulicy, bez progu, drzwi dwuskrzydłowe otwierane ręcznie. Korytarze o szerokości powyżej 150 cm. Winda dostępna z holu głównego, z sygnalizacją głosową i oznaczeniami brajlowskimi. Toaleta dostosowana na parterze. Do budynku można wejść z psem asystującym. Miejsca parkingowe dla osób z niepełnosprawnością wyznaczone przed wejściem głównym.",
+      "czyMaWinde": true,
+      "czyAktywny": true,
+      "punktWejsciaGlownego": "A-0-P01",
+      "pietra": [
+        {
+          "numer": 0,
+          "nazwa": "Parter",
+          "opis": "Parter budynku A.",
+          "punkty": [
+            {
+              "kod": "A-0-P01",
+              "typ": "Hol",
+              "nazwa": "Wejście główne",
+              "opis": "Wejście główne do budynku A od strony ulicy. Drzwi dwuskrzydłowe, bez progu. Od drzwi zaczyna się ścieżka dotykowa w podłodze, która prowadzi do windy.",
+              "opisGlosowy": "Jesteś przy wejściu głównym do budynku A. Drzwi wejściowe mają dwa skrzydła i nie mają progu. Za drzwiami zaczyna się hol. W podłodze jest ścieżka dotykowa, która prowadzi do windy.",
+              "azymutDomyslny": 0,
+              "x": 0.00,
+              "y": 0.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doPunktu": "A-0-P02",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Przez drzwi wejściowe bez progu, dalej wzdłuż ścieżki dotykowej.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 180
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P02",
+              "typ": "Hol",
+              "nazwa": "Hol główny przy portierni",
+              "opis": "Duży hol. Okienko portierni i tablica informacyjna są po przeciwnych stronach holu. Przez hol biegnie ścieżka dotykowa.",
+              "opisGlosowy": "Jesteś w holu głównym. Około trzech metrów stąd jest okienko portierni. Naprzeciwko okienka, po drugiej stronie holu, wisi tablica informacyjna. Przez hol biegnie ścieżka dotykowa.",
+              "azymutDomyslny": 0,
+              "x": 0.00,
+              "y": 6.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doPunktu": "A-0-P03",
+                  "waga": 8.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Przez hol, wzdłuż ścieżki dotykowej.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 180
+                },
+                {
+                  "azymut": 180,
+                  "doPunktu": "A-0-P01",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Wzdłuż ścieżki dotykowej do drzwi wejściowych. Za drzwiami jest ulica.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 0
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P03",
+              "typ": "Skrzyżowanie",
+              "nazwa": "Skrzyżowanie korytarzy",
+              "opis": "Skrzyżowanie korytarza zachodniego i wschodniego. W podłodze ścieżka dotykowa. Stąd dochodzi się do sal komputerowych, sekretariatu, windy i holu głównego.",
+              "opisGlosowy": "Jesteś na skrzyżowaniu korytarzy. Zbiegają się tu cztery drogi. Korytarz zachodni prowadzi do sal komputerowych. Korytarz wschodni prowadzi do sekretariatu. Są tu też przejście do windy i przejście do holu głównego.",
+              "azymutDomyslny": 0,
+              "x": 0.00,
+              "y": 14.00,
+              "czyAktywny": true,
+              "udogodnienia": [
+                {
+                  "nazwa": "Ścieżka dotykowa",
+                  "uwagi": "Ścieżka dotykowa prowadzi od wejścia do windy"
+                }
+              ],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doPunktu": "A-0-P08",
+                  "waga": 4.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Wzdłuż ścieżki dotykowej, która kończy się przed drzwiami windy.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 180
+                },
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P09",
+                  "waga": 7.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem wschodnim.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 180,
+                  "doPunktu": "A-0-P02",
+                  "waga": 8.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Wzdłuż ścieżki dotykowej w stronę wejścia.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 0
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-0-P04",
+                  "waga": 5.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim. Pierwsze drzwi po drodze to sala A12.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P04",
+              "typ": "Korytarz",
+              "nazwa": "Korytarz zachodni przy sali A12",
+              "opis": "Odcinek korytarza zachodniego. Są tu drzwi do sali A12, a naprzeciwko nich ściana z gablotą informacyjną.",
+              "opisGlosowy": "Jesteś w korytarzu zachodnim. Są tu drzwi do sali A dwanaście. Naprzeciwko tych drzwi jest ściana z gablotą informacyjną.",
+              "azymutDomyslny": 270,
+              "x": -5.00,
+              "y": 14.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doSali": "A12",
+                  "pietroSali": 0,
+                  "waga": 1.00,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Drzwi bez progu.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true
+                },
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P03",
+                  "waga": 5.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim. Korytarz kończy się na skrzyżowaniu, gdzie zaczyna się ścieżka dotykowa.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 180,
+                  "doSali": "A12",
+                  "pietroSali": 0,
+                  "waga": 0.50,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Ściana z gablotą informacyjną.",
+                  "czyAktywny": false,
+                  "czyDostepnyBezSchodow": true
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-0-P05",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim, dalej od skrzyżowania.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P05",
+              "typ": "Korytarz",
+              "nazwa": "Korytarz zachodni przy salach A14 i A15",
+              "opis": "Odcinek korytarza zachodniego. Są tu drzwi do sali A14 i do sali A15, naprzeciwko siebie.",
+              "opisGlosowy": "Jesteś w korytarzu zachodnim. Są tu drzwi do sali A czternaście i do sali A piętnaście. Drzwi obu sal są naprzeciwko siebie.",
+              "azymutDomyslny": 270,
+              "x": -11.00,
+              "y": 14.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doSali": "A14",
+                  "pietroSali": 0,
+                  "waga": 1.00,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Drzwi sali ćwiczeniowej.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true
+                },
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P04",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim, w stronę skrzyżowania.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 180,
+                  "doSali": "A15",
+                  "pietroSali": 0,
+                  "waga": 1.00,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Drzwi pracowni sieci komputerowych.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-0-P06",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim do jego końca.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P06",
+              "typ": "Korytarz",
+              "nazwa": "Koniec korytarza zachodniego",
+              "opis": "Koniec korytarza zachodniego. Są tu schody na pierwsze piętro, a naprzeciwko nich drzwi toalety dostosowanej.",
+              "opisGlosowy": "Jesteś na końcu korytarza zachodniego. Są tu schody na pierwsze piętro. Naprzeciwko schodów są drzwi toalety dostosowanej dla osób z niepełnosprawnością.",
+              "azymutDomyslny": 270,
+              "x": -17.00,
+              "y": 14.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doPunktu": "A-0-P07",
+                  "waga": 3.00,
+                  "rodzaj": "Schody",
+                  "opisPrzejscia": "Do podestu, od którego zaczynają się schody w górę. Pierwszy stopień ma oznaczenie kontrastowe.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": false,
+                  "azymutPowrotu": 180
+                },
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P05",
+                  "waga": 6.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem zachodnim, w stronę skrzyżowania.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 180,
+                  "doSali": "WC-0-Z",
+                  "pietroSali": 0,
+                  "waga": 2.00,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Drzwi toalety otwierają się na zewnątrz, w stronę korytarza.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P07",
+              "typ": "Podest schodów",
+              "nazwa": "Podest schodów zachodnich",
+              "opis": "Spocznik przed biegiem schodów na pierwsze piętro. Poręcze po obu stronach schodów. Pierwszy i ostatni stopień mają oznaczenie kontrastowe.",
+              "opisGlosowy": "Jesteś na podeście schodów zachodnich. Schody prowadzą w górę na pierwsze piętro. Mają osiemnaście stopni. Poręcze są po obu stronach schodów.",
+              "azymutDomyslny": 0,
+              "x": -17.00,
+              "y": 17.00,
+              "czyAktywny": true,
+              "udogodnienia": [
+                {
+                  "nazwa": "Oznaczenie kontrastowe",
+                  "uwagi": "Kontrastowe oznaczenie pierwszego i ostatniego stopnia"
+                }
+              ],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 180,
+                  "doPunktu": "A-0-P06",
+                  "waga": 3.00,
+                  "rodzaj": "Schody",
+                  "opisPrzejscia": "Z podestu schodów do korytarza zachodniego.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": false,
+                  "azymutPowrotu": 0
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P08",
+              "typ": "Przed windą",
+              "nazwa": "Przed windą",
+              "opis": "Miejsce przed drzwiami windy. Przycisk przywołania jest po prawej stronie drzwi windy i ma oznaczenie brajlowskie. Kończy się tu ścieżka dotykowa.",
+              "opisGlosowy": "Jesteś przed windą. Przycisk przywołania jest po prawej stronie drzwi windy, na wysokości ręki. Przycisk jest oznaczony pismem Braille'a. Winda zapowiada piętra głosem.",
+              "azymutDomyslny": 0,
+              "x": 0.00,
+              "y": 18.00,
+              "czyAktywny": true,
+              "udogodnienia": [
+                {
+                  "nazwa": "Oznaczenia brajlowskie",
+                  "uwagi": "Przyciski oznaczone brajlem"
+                },
+                {
+                  "nazwa": "Winda",
+                  "uwagi": "Winda z zapowiedzią głosową pięter"
+                }
+              ],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 180,
+                  "doPunktu": "A-0-P03",
+                  "waga": 4.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Wzdłuż ścieżki dotykowej, od windy w stronę wejścia.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 0
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P09",
+              "typ": "Korytarz",
+              "nazwa": "Korytarz wschodni przy sekretariacie",
+              "opis": "Odcinek korytarza wschodniego. Są tu drzwi sekretariatu Wydziału Informatyki, sala A16.",
+              "opisGlosowy": "Jesteś w korytarzu wschodnim. Są tu drzwi sekretariatu Wydziału Informatyki. To sala A szesnaście.",
+              "azymutDomyslny": 90,
+              "x": 7.00,
+              "y": 14.00,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doSali": "A16",
+                  "pietroSali": 0,
+                  "waga": 1.00,
+                  "rodzaj": "Drzwi",
+                  "opisPrzejscia": "Drzwi sekretariatu. Okienko z pętlą indukcyjną jest w środku.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-0-P03",
+                  "waga": 7.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarzem wschodnim. Korytarz kończy się na skrzyżowaniu, gdzie zaczyna się ścieżka dotykowa.",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            }
+          ],
+          "sale": [
+            {
+              "symbol": "A12",
+              "typ": "Sala komputerowa",
+              "punktWejsciowy": "A-0-P04",
+              "nazwa": "Pracownia komputerowa",
+              "aliasy": "12;sala 12;pracownia",
+              "opis": "Sala z 16 stanowiskami komputerowymi. Wejście bez progu.",
+              "opisGlosowy": "Sala A dwanaście, pracownia komputerowa. Ma szesnaście stanowisk. Wejście jest bez progu.",
+              "liczbaMiejsc": 16,
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            },
+            {
+              "symbol": "A14",
+              "typ": "Sala ćwiczeniowa",
+              "punktWejsciowy": "A-0-P05",
+              "nazwa": "Sala ćwiczeniowa",
+              "aliasy": "14;sala 14",
+              "opis": "Sala ćwiczeniowa na 30 osób.",
+              "opisGlosowy": "Sala A czternaście, sala ćwiczeniowa na trzydzieści osób.",
+              "liczbaMiejsc": 30,
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            },
+            {
+              "symbol": "A15",
+              "typ": "Sala komputerowa",
+              "punktWejsciowy": "A-0-P05",
+              "nazwa": "Pracownia sieci komputerowych",
+              "aliasy": "15;sala 15;sieci",
+              "opis": "Pracownia sieciowa z 12 stanowiskami i szafą z urządzeniami sieciowymi.",
+              "opisGlosowy": "Sala A piętnaście, pracownia sieci komputerowych. Ma dwanaście stanowisk.",
+              "liczbaMiejsc": 12,
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            },
+            {
+              "symbol": "A16",
+              "typ": "Sekretariat",
+              "punktWejsciowy": "A-0-P09",
+              "nazwa": "Sekretariat Wydziału Informatyki",
+              "aliasy": "dziekanat;sekretariat;16",
+              "opis": "Sekretariat czynny od poniedziałku do piątku w godzinach 8:00–15:00. Przy okienku działa pętla indukcyjna.",
+              "opisGlosowy": "Sala A szesnaście, sekretariat Wydziału Informatyki. Czynny od poniedziałku do piątku, od ósmej do piętnastej. Przy okienku działa pętla indukcyjna.",
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [
+                {
+                  "nazwa": "Pętla indukcyjna",
+                  "uwagi": "Pętla indukcyjna przy okienku"
+                }
+              ],
+              "zdjecia": []
+            },
+            {
+              "symbol": "WC-0-Z",
+              "typ": "Toaleta",
+              "punktWejsciowy": "A-0-P06",
+              "nazwa": "Toaleta dostosowana",
+              "aliasy": "wc;toaleta;łazienka",
+              "opis": "Toaleta dla osób z niepełnosprawnością, z poręczami i przyciskiem alarmowym.",
+              "opisGlosowy": "Toaleta dostosowana. Drzwi otwierają się na zewnątrz. W środku są poręcze i przycisk alarmowy przy umywalce.",
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

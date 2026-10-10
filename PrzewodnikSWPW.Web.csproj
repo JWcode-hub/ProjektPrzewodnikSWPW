@@ -18,4 +18,9 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Plik danych budynków: jedzie z aplikacją także po publikacji. -->
+    <Content Update="Dane\przewodnik.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
