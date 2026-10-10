@@ -1,0 +1,38 @@
+@model DaneViewModel
+@{
+    ViewData["Title"] = "Dane w repozytorium";
+}
+
+<h1>Dane w repozytorium</h1>
+<partial name="_Komunikat" />
+
+<p>Wszystko, co wprowadzasz w panelu, zapisuje się w bazie danych na tym komputerze. Baza leży poza katalogiem
+   projektu, więc nie trafia do repozytorium. Ten przycisk zapisuje dane budynków do pliku w katalogu projektu —
+   plik zatwierdzasz w repozytorium razem z katalogiem zdjęć.</p>
+
+<h2>Co jest teraz w bazie</h2>
+<ul>
+    <li>Budynki: @Model.WBazie.Budynki</li>
+    <li>Punkty ruchu: @Model.WBazie.Punkty</li>
+    <li>Kierunki: @Model.WBazie.Kierunki</li>
+    <li>Sale: @Model.WBazie.Sale</li>
+    <li>Zdjęcia: @Model.WBazie.Zdjecia</li>
+</ul>
+
+<h2>Plik danych</h2>
+<p>Położenie pliku: <code>@Model.SciezkaPliku</code></p>
+<p>@(Model.DataPliku is { } data ? $"Ostatni zapis: {data:d MMMM yyyy, HH:mm}." : "Pliku jeszcze nie ma.")</p>
+
+<form method="post" asp-action="Dane">
+    <button type="submit" class="btn btn-primary">Zapisz dane do pliku</button>
+</form>
+
+<h2>Co dalej</h2>
+<ol>
+    <li>Uruchom <a asp-action="WalidacjaGrafu">walidację grafu</a> i popraw błędy krytyczne — do pliku trafia to, co jest w bazie, razem z błędami.</li>
+    <li>Zapisz dane do pliku.</li>
+    <li>Zatwierdź w repozytorium plik danych i nowe pliki w katalogu zdjęć.</li>
+</ol>
+<p>Na innym komputerze aplikacja wczyta ten plik sama przy pierwszym uruchomieniu, jeśli jej baza nie ma jeszcze
+   żadnego budynku. Danych, które już są w bazie, nigdy nie nadpisuje.</p>
+<p>Do pliku nie trafiają konta, hasła, zgłoszenia dostępności ani rejestr zmian.</p>

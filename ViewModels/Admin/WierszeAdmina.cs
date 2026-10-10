@@ -1,4 +1,5 @@
 using PrzewodnikSWPW.Web.Models;
+using PrzewodnikSWPW.Web.Services;
 
 namespace PrzewodnikSWPW.Web.ViewModels.Admin;
 
@@ -40,3 +41,6 @@ public sealed record KierunkiPunktuViewModel(PunktWiersz Punkt, IReadOnlyDiction
 public sealed record SlownikWiersz(int Id, string Nazwa, string? Opis, string? Ikona);
 
 public sealed record SlownikListaViewModel(string Tytul, string NazwaPozycji, bool MaIkone, IReadOnlyList<SlownikWiersz> Pozycje);
+
+/// <summary>Strona zapisu danych do pliku: gdzie jest plik, kiedy go zapisano i co jest teraz w bazie.</summary>
+public sealed record DaneViewModel(string SciezkaPliku, DateTime? DataPliku, PodsumowanieDanych WBazie);

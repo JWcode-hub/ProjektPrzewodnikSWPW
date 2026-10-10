@@ -4,7 +4,7 @@ namespace PrzewodnikSWPW.Web.Services;
 
 public interface IBiezacyUzytkownik
 {
-    /// <summary>Identyfikator zalogowanego użytkownika (AspNetUsers.Id) albo <c>null</c> — seeder, zadanie w tle, gość.</summary>
+    /// <summary>Identyfikator zalogowanego użytkownika (AspNetUsers.Id) albo <c>null</c> — wczytanie danych z pliku, zadanie w tle, gość.</summary>
     string? Id { get; }
 }
 

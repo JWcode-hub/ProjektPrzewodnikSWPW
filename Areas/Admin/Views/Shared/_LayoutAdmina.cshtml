@@ -31,6 +31,8 @@
                 }
                 <li><a asp-area="Admin" asp-controller="Panel" asp-action="WalidacjaGrafu"
                        aria-current="@(ViewContext.RouteData.Values["action"] as string == "WalidacjaGrafu" ? "page" : null)">Walidacja grafu</a></li>
+                <li><a asp-area="Admin" asp-controller="Panel" asp-action="Dane"
+                       aria-current="@(ViewContext.RouteData.Values["action"] as string == "Dane" ? "page" : null)">Dane w repozytorium</a></li>
                 <li><a asp-area="Admin" asp-controller="Panel" asp-action="RejestrZmian"
                        aria-current="@(ViewContext.RouteData.Values["action"] as string == "RejestrZmian" ? "page" : null)">Rejestr zmian</a></li>
             </ul>
