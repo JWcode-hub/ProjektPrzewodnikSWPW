@@ -80,7 +80,20 @@ nowego budynku:
 8. **Walidacja grafu** — sprawdza, czy z każdego miejsca da się wrócić i czy do każdego da się dojść.
 9. **Dane w repozytorium** — zapisuje dane do pliku, który zatwierdzasz w repozytorium.
 
-Rekordów się nie usuwa, tylko dezaktywuje. Każda zmiana trafia do rejestru zmian.
+Każdą pozycję można też usunąć na stałe — przy każdej jest link „Usuń",
+a strona potwierdzenia wypisuje, co zniknie razem z nią:
+
+- **kierunek** — z opcją usunięcia kierunku powrotnego,
+- **punkt ruchu** — z kierunkami, które z niego wychodzą i do niego prowadzą, oraz jego zdjęciami,
+- **sala** — z kierunkami „drzwi", które do niej prowadzą, i jej zdjęciami,
+- **piętro** — z salami i punktami ruchu,
+- **budynek** — z całą zawartością.
+- **zdjęcie** — razem z plikiem; opis miejsca i kierunki zostają bez zmian.
+
+Wejścia głównego budynku ani piętra, na którym ono leży, usunąć się nie da — najpierw trzeba wybrać inne wejście
+albo usunąć cały budynek. Sale, które tracą punkt wejściowy, zostają bez niego. Usunięcia nie da się cofnąć;
+jeśli chcesz coś tylko ukryć, wybierz dezaktywację. Po każdym usunięciu uruchom walidację grafu.
+Każda zmiana trafia do rejestru zmian.
 
 ## Dane w repozytorium
 

@@ -8,7 +8,7 @@ namespace PrzewodnikSWPW.Web.Areas.Admin.Controllers;
 
 /// <summary>Sale. Sali nie usuwamy — dezaktywujemy (odwołują się do niej kierunki i log zapytań).</summary>
 [Route("admin/sale")]
-public class SaleController(AdministracjaService admin) : AdminKontroler
+public class SaleController(AdministracjaService admin, IMagazynZdjec magazyn) : AdminKontroler
 {
     [Authorize(Roles = Role.Administrator)]
     [HttpGet("")]
@@ -89,6 +89,39 @@ public class SaleController(AdministracjaService admin) : AdminKontroler
     {
         var wynik = await admin.UstawAktywnoscSali(id, false, ct);
         Komunikat(wynik.Sukces ? "Salę dezaktywowano." : wynik.Bledy[0].Komunikat);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpGet("{id:int}/usun")]
+    public async Task<IActionResult> Usun(int id, CancellationToken ct)
+    {
+        if (await admin.SkutkiUsunieciaSali(id, ct) is not { } s) return NotFound();
+        return View("Potwierdzenie", new PotwierdzenieViewModel(
+            $"Usunięcie: {s.Nazwa}",
+            $"Czy na pewno usunąć: {s.Nazwa}?",
+            "Sala zniknie z bazy i nie da się jej przywrócić. Jeśli chcesz ją tylko ukryć, wybierz dezaktywację.",
+            s.Blokada,
+            "Tak, usuń salę",
+            Url.Action(nameof(Usun), new { id })!,
+            Url.Action(nameof(Index))!,
+            "Anuluj i wróć do listy sal",
+            Skutki: s.Skutki));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpPost("{id:int}/usun")]
+    [ValidateAntiForgeryToken]
+    [ActionName(nameof(Usun))]
+    public async Task<IActionResult> UsunPotwierdzone(int id, CancellationToken ct)
+    {
+        var (wynik, pliki) = await admin.UsunSale(id, ct);
+        // Pliki kasujemy dopiero po zatwierdzeniu zmian w bazie.
+        foreach (var plik in pliki)
+        {
+            magazyn.Usun(plik);
+        }
+        Komunikat(wynik.Sukces ? "Salę usunięto." : wynik.Bledy[0].Komunikat);
         return RedirectToAction(nameof(Index));
     }
 

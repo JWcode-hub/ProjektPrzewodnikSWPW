@@ -8,7 +8,7 @@ namespace PrzewodnikSWPW.Web.Areas.Admin.Controllers;
 
 /// <summary>Piętra. Usuwamy tylko piętro puste — bez sal i punktów ruchu.</summary>
 [Route("admin/pietra")]
-public class PietraController(AdministracjaService admin) : AdminKontroler
+public class PietraController(AdministracjaService admin, IMagazynZdjec magazyn) : AdminKontroler
 {
     [Authorize(Roles = Role.Administrator)]
     [HttpGet("")]
@@ -69,20 +69,17 @@ public class PietraController(AdministracjaService admin) : AdminKontroler
     [HttpGet("{id:int}/usun")]
     public async Task<IActionResult> Usun(int id, CancellationToken ct)
     {
-        var p = (await admin.Pietra(ct)).FirstOrDefault(x => x.Id == id);
-        if (p is null) return NotFound();
-        var przeszkoda = p.Sale.Count > 0 || p.PunktyRuchu.Count > 0
-            ? $"Tego piętra nie można usunąć: ma {Odmiana.Sale(p.Sale.Count)} i {p.PunktyRuchu.Count} punktów ruchu. Najpierw przenieś albo dezaktywuj sale i punkty."
-            : null;
+        if (await admin.SkutkiUsunieciaPietra(id, ct) is not { } s) return NotFound();
         return View("Potwierdzenie", new PotwierdzenieViewModel(
-            $"Usunięcie piętra {p.Nazwa}",
-            $"Czy na pewno usunąć piętro „{p.Nazwa}” w budynku {p.Budynek.Kod}?",
-            "Usunięcia nie można cofnąć.",
-            przeszkoda,
-            $"Tak, usuń piętro {p.Nazwa}",
+            $"Usunięcie: {s.Nazwa}",
+            $"Czy na pewno usunąć: {s.Nazwa}?",
+            "Piętro zniknie z bazy razem z salami i punktami ruchu. Usunięcia nie da się cofnąć.",
+            s.Blokada,
+            "Tak, usuń piętro z całą zawartością",
             Url.Action(nameof(Usun), new { id })!,
             Url.Action(nameof(Index))!,
-            "Anuluj i wróć do listy pięter"));
+            "Anuluj i wróć do listy pięter",
+            Skutki: s.Skutki));
     }
 
     [Authorize(Roles = Role.Administrator)]
@@ -91,8 +88,13 @@ public class PietraController(AdministracjaService admin) : AdminKontroler
     [ActionName(nameof(Usun))]
     public async Task<IActionResult> UsunPotwierdzone(int id, CancellationToken ct)
     {
-        var wynik = await admin.UsunPietro(id, ct);
-        Komunikat(wynik.Sukces ? "Piętro usunięto." : wynik.Bledy[0].Komunikat);
+        var (wynik, pliki) = await admin.UsunPietro(id, ct);
+        // Pliki kasujemy dopiero po zatwierdzeniu zmian w bazie.
+        foreach (var plik in pliki)
+        {
+            magazyn.Usun(plik);
+        }
+        Komunikat(wynik.Sukces ? "Piętro usunięto razem z salami i punktami ruchu." : wynik.Bledy[0].Komunikat);
         return RedirectToAction(nameof(Index));
     }
 

@@ -8,7 +8,7 @@ namespace PrzewodnikSWPW.Web.Areas.Admin.Controllers;
 
 /// <summary>Budynki. Budynku nie usuwamy — dezaktywujemy (skasowanie wzięłoby ze sobą piętra i graf).</summary>
 [Route("admin/budynki")]
-public class BudynkiController(AdministracjaService admin) : AdminKontroler
+public class BudynkiController(AdministracjaService admin, IMagazynZdjec magazyn) : AdminKontroler
 {
     [Authorize(Roles = Role.Administrator)]
     [HttpGet("")]
@@ -97,6 +97,39 @@ public class BudynkiController(AdministracjaService admin) : AdminKontroler
     {
         var wynik = await admin.UstawAktywnoscBudynku(id, false, ct);
         Komunikat(wynik.Sukces ? "Budynek dezaktywowano." : wynik.Bledy[0].Komunikat);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpGet("{id:int}/usun")]
+    public async Task<IActionResult> Usun(int id, CancellationToken ct)
+    {
+        if (await admin.SkutkiUsunieciaBudynku(id, ct) is not { } s) return NotFound();
+        return View("Potwierdzenie", new PotwierdzenieViewModel(
+            $"Usunięcie: {s.Nazwa}",
+            $"Czy na pewno usunąć: {s.Nazwa}?",
+            "Budynek zniknie z bazy razem z całą zawartością i nie da się go przywrócić. Jeśli chcesz go tylko ukryć, wybierz dezaktywację.",
+            s.Blokada,
+            "Tak, usuń budynek z całą zawartością",
+            Url.Action(nameof(Usun), new { id })!,
+            Url.Action(nameof(Index))!,
+            "Anuluj i wróć do listy budynków",
+            Skutki: s.Skutki));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpPost("{id:int}/usun")]
+    [ValidateAntiForgeryToken]
+    [ActionName(nameof(Usun))]
+    public async Task<IActionResult> UsunPotwierdzone(int id, CancellationToken ct)
+    {
+        var (wynik, pliki) = await admin.UsunBudynek(id, ct);
+        // Pliki kasujemy dopiero po zatwierdzeniu zmian w bazie.
+        foreach (var plik in pliki)
+        {
+            magazyn.Usun(plik);
+        }
+        Komunikat(wynik.Sukces ? "Budynek usunięto razem z piętrami, salami i punktami ruchu." : wynik.Bledy[0].Komunikat);
         return RedirectToAction(nameof(Index));
     }
 

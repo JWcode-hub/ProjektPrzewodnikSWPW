@@ -168,7 +168,8 @@ public class PrzewodnikDbContext(DbContextOptions<PrzewodnikDbContext> options) 
         // Dla kluczy OPCJONALNYCH (PunktDocelowyId, SalaDocelowaId) domyślne zachowanie EF to
         // ClientSetNull: usunięcie celu wpisałoby NULL i złamało CK_Kierunek_JedenCel.
         // Dlatego Restrict musi być zapisany przy KAŻDYM kluczu — nie wolno polegać na domyślnym.
-        // Kierunków nie usuwamy fizycznie: CzyAktywny = false.
+        // Baza niczego tu nie kasuje sama: usuwanie punktu albo kierunku rozłącza powiązania jawnie,
+        // w AdministracjaService, w jednej transakcji.
         modelBuilder.Entity<Kierunek>(e =>
         {
             e.HasOne(k => k.PunktZrodlowy).WithMany(p => p.KierunkiWychodzace)

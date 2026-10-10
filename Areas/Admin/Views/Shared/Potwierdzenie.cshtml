@@ -19,6 +19,16 @@ else
     {
         <p>@Model.Wyjasnienie</p>
     }
+    @if (Model.Skutki is { Count: > 0 })
+    {
+        <h2 class="h5">Co się stanie</h2>
+        <ul>
+            @foreach (var skutek in Model.Skutki)
+            {
+                <li>@skutek</li>
+            }
+        </ul>
+    }
 
     <form method="post" action="@Model.AkcjaFormularza">
         @Html.AntiForgeryToken()
@@ -27,7 +37,7 @@ else
             <div class="form-check pole--wybor mb-3">
                 <input class="form-check-input" type="checkbox" id="takzePowrotny" name="takzePowrotny" value="true" checked />
                 <input type="hidden" name="takzePowrotny" value="false" />
-                <label class="form-check-label" for="takzePowrotny">Dezaktywuj też kierunek powrotny</label>
+                <label class="form-check-label" for="takzePowrotny">@Model.TekstOpcjiPowrotnego</label>
             </div>
         }
         <div class="przyciski-formularza">

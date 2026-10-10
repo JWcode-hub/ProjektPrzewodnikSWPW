@@ -105,6 +105,43 @@ public class KierunkiController(AdministracjaService admin) : AdminKontroler
     }
 
     [Authorize(Roles = Role.Administrator)]
+    [HttpGet("{id:int}/usun")]
+    public async Task<IActionResult> Usun(int id, CancellationToken ct)
+    {
+        if (await admin.PobierzKierunek(id, ct) is not { } k) return NotFound();
+        return View("Potwierdzenie", new PotwierdzenieViewModel(
+            $"Usunięcie kierunku {k.Azymut}° z punktu {k.PunktZrodlowy.Kod}",
+            $"Czy na pewno usunąć kierunek {k.Azymut}° z punktu {k.PunktZrodlowy.Kod}?",
+            "Kierunek zniknie z bazy i nie da się go przywrócić. Jeśli w tę stronę po prostu nie ma przejścia, " +
+            "lepiej go dezaktywować — użytkownik usłyszy wtedy opis przeszkody jako punkt orientacyjny.",
+            null,
+            $"Tak, usuń kierunek {k.Azymut}°",
+            Url.Action(nameof(Usun), new { id })!,
+            Url.Action(nameof(Index), new { punkt = k.PunktZrodlowyId })!,
+            $"Anuluj i wróć do kierunków punktu {k.PunktZrodlowy.Kod}",
+            PokazOpcjePowrotnego: k.KierunekPowrotnyId is not null,
+            TekstOpcjiPowrotnego: "Usuń też kierunek powrotny (bez tego zostanie przejście tylko w jedną stronę)",
+            Skutki: ["Znikną też utrudnienia przypisane do tego kierunku."]));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpPost("{id:int}/usun")]
+    [ValidateAntiForgeryToken]
+    [ActionName(nameof(Usun))]
+    public async Task<IActionResult> UsunPotwierdzone(int id, bool takzePowrotny, CancellationToken ct)
+    {
+        if (await admin.PobierzKierunek(id, ct) is not { } k) return NotFound();
+        var usunietoPowrotny = takzePowrotny && k.KierunekPowrotnyId is not null;
+        var wynik = await admin.UsunKierunek(id, takzePowrotny, ct);
+        Komunikat(!wynik.Sukces ? wynik.Bledy[0].Komunikat
+            : usunietoPowrotny ? $"Usunięto kierunek {k.Azymut}° i jego kierunek powrotny."
+            : k.KierunekPowrotnyId is not null
+                ? $"Usunięto kierunek {k.Azymut}°. Kierunek powrotny został bez pary — tędy da się teraz przejść tylko w jedną stronę."
+                : $"Usunięto kierunek {k.Azymut}°.");
+        return RedirectToAction(nameof(Index), new { punkt = k.PunktZrodlowyId });
+    }
+
+    [Authorize(Roles = Role.Administrator)]
     [HttpPost("{id:int}/aktywuj")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Aktywuj(int id, CancellationToken ct)

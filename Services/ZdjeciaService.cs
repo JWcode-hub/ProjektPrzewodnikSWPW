@@ -120,6 +120,22 @@ public sealed class ZdjeciaService(IAdministracjaRepozytorium repo, IMagazynZdje
     }
 
     /// <summary>Zmiana opisu, źródła, licencji, kolejności — bez wymiany pliku.</summary>
+    /// <summary>
+    /// Usuwa zdjęcie: rekord, a po zatwierdzeniu zmian w bazie — plik z dysku. W tej kolejności, bo rekord
+    /// wskazujący na nieistniejący plik (pusta ramka w spacerze) jest gorszy niż plik bez rekordu.
+    /// </summary>
+    public async Task<WynikOperacji> UsunZdjecie(int id, CancellationToken ct = default)
+    {
+        var zdjecie = await repo.ZnajdzAsync<Zdjecie>(id, ct);
+        if (zdjecie is null) return WynikOperacji.Blad("", "Nie znaleziono zdjęcia.");
+
+        var sciezka = zdjecie.SciezkaPliku;
+        repo.Usun(zdjecie);
+        await repo.ZapiszAsync(ct);
+        magazyn.Usun(sciezka);
+        return WynikOperacji.Ok();
+    }
+
     public async Task<WynikOperacji> ZapiszZdjecie(Zdjecie z, CancellationToken ct = default)
     {
         await repo.ZapiszAsync(ct);

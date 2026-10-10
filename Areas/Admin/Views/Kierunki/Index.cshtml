@@ -50,6 +50,7 @@
                     <td>
                         <ul class="dzialania">
                             <li><a asp-action="Edytuj" asp-route-id="@k.Id">Edytuj<span class="visually-hidden"> kierunek @azymut°</span></a></li>
+                            <li><a asp-action="Usun" asp-route-id="@k.Id">Usuń<span class="visually-hidden"> kierunek @azymut°</span></a></li>
                             @if (k.CzyAktywny)
                             {
                                 <li><a asp-action="Dezaktywuj" asp-route-id="@k.Id">Dezaktywuj<span class="visually-hidden"> kierunek @azymut°</span></a></li>
