@@ -362,4 +362,6 @@ public sealed record PotwierdzenieViewModel(
     string AkcjaFormularza,
     string AdresAnulowania,
     string TekstAnulowania,
-    bool PokazOpcjePowrotnego = false);
+    bool PokazOpcjePowrotnego = false,
+    string TekstOpcjiPowrotnego = "Dezaktywuj też kierunek powrotny",
+    IReadOnlyList<string>? Skutki = null);

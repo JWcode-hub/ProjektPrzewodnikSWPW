@@ -22,6 +22,22 @@ public sealed record WpisAudytuWidok(DateTime Data, string Uzytkownik, string En
 /// przed zapisem, aby użytkownik dostał zrozumiały komunikat przy polu formularza, a nie błąd bazy.
 /// Punktów, kierunków, sal i budynków nie usuwamy fizycznie — tylko CzyAktywny = false.
 /// </summary>
+/// <summary>Skutki usunięcia sali, piętra albo budynku — pokazywane redaktorowi, zanim potwierdzi.</summary>
+/// <param name="Blokada">Powód, dla którego usunąć się nie da, albo <c>null</c>.</param>
+public sealed record SkutkiUsuniecia(string Nazwa, string? Blokada, IReadOnlyList<string> Skutki);
+
+/// <summary>Skutki usunięcia punktu ruchu — pokazywane redaktorowi, zanim potwierdzi.</summary>
+/// <param name="WejscieGlowneBudynku">Kod budynku, którego wejściem głównym jest ten punkt; wtedy usunięcie jest zablokowane.</param>
+/// <param name="PunktyZPrzejsciemTutaj">Kody punktów, z których prowadzi kierunek do usuwanego punktu.</param>
+public sealed record SkutkiUsunieciaPunktu(
+    string Kod,
+    string Nazwa,
+    string? WejscieGlowneBudynku,
+    int KierunkiWychodzace,
+    IReadOnlyList<string> PunktyZPrzejsciemTutaj,
+    IReadOnlyList<string> SaleTracaceWejscie,
+    int Zdjecia);
+
 public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
 {
     // --- Budynki -------------------------------------------------------------------------------------
@@ -50,6 +66,46 @@ public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
     public Task<List<PunktRuchu>> PunktyBudynku(int budynekId, CancellationToken ct = default) =>
         repo.Zapytanie<PunktRuchu>().AsNoTracking().Where(p => p.Pietro.BudynekId == budynekId).OrderBy(p => p.Kod).ToListAsync(ct);
 
+    public async Task<SkutkiUsuniecia?> SkutkiUsunieciaBudynku(int id, CancellationToken ct = default)
+    {
+        var b = await repo.Zapytanie<Budynek>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (b is null) return null;
+
+        var pietra = await repo.Zapytanie<Pietro>().AsNoTracking().CountAsync(p => p.BudynekId == id, ct);
+        var punkty = await repo.Zapytanie<PunktRuchu>().AsNoTracking().Where(p => p.Pietro.BudynekId == id).Select(p => p.Id).ToListAsync(ct);
+        var sale = await repo.Zapytanie<Sala>().AsNoTracking().Where(s => s.Pietro.BudynekId == id).Select(s => s.Id).ToListAsync(ct);
+        var skutki = new List<string>();
+        if (pietra > 0) skutki.Add($"Znikną piętra budynku: {pietra}.");
+        if (punkty.Count > 0) skutki.Add($"Znikną punkty ruchu: {punkty.Count}.");
+        if (sale.Count > 0) skutki.Add($"Znikną sale: {sale.Count}.");
+        skutki.AddRange(await OpiszSkutkiAsync(punkty, sale, ct));
+        return new SkutkiUsuniecia($"budynek {b.Kod} — {b.Nazwa}", null, skutki);
+    }
+
+    /// <summary>Usuwa budynek z całą zawartością: piętrami, salami, punktami ruchu, kierunkami i zdjęciami.</summary>
+    public async Task<(WynikOperacji Wynik, IReadOnlyList<string> PlikiZdjec)> UsunBudynek(int id, CancellationToken ct = default)
+    {
+        var budynek = await repo.ZnajdzAsync<Budynek>(id, ct);
+        if (budynek is null) return (WynikOperacji.Blad("", "Nie znaleziono budynku."), []);
+
+        await using var transakcja = await repo.RozpocznijTransakcjeAsync(ct);
+        // Budynek wskazuje na swój punkt wejścia, a punkt (przez piętro) na budynek — najpierw rozłączamy.
+        budynek.PunktWejsciaGlownegoId = null;
+        await repo.ZapiszAsync(ct);
+
+        var pliki = await UsunZawartoscAsync(
+            await repo.Zapytanie<PunktRuchu>().Where(p => p.Pietro.BudynekId == id).Select(p => p.Id).ToListAsync(ct),
+            await repo.Zapytanie<Sala>().Where(s => s.Pietro.BudynekId == id).Select(s => s.Id).ToListAsync(ct), ct);
+        foreach (var pietro in await repo.Zapytanie<Pietro>().Where(p => p.BudynekId == id).ToListAsync(ct))
+        {
+            repo.Usun(pietro);
+        }
+        repo.Usun(budynek);
+        await repo.ZapiszAsync(ct);
+        await transakcja.CommitAsync(ct);
+        return (WynikOperacji.Ok(), pliki);
+    }
+
     public Task<WynikOperacji> UstawAktywnoscBudynku(int id, bool aktywny, CancellationToken ct = default) =>
         UstawAktywnosc<Budynek>(id, b => b.CzyAktywny = aktywny, ct);
 
@@ -77,18 +133,39 @@ public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
     }
 
     /// <summary>Piętro usuwamy tylko puste — z salami lub punktami ruchu usunięcie skasowałoby część grafu.</summary>
-    public async Task<WynikOperacji> UsunPietro(int id, CancellationToken ct = default)
+    public async Task<SkutkiUsuniecia?> SkutkiUsunieciaPietra(int id, CancellationToken ct = default)
     {
-        var p = await repo.Zapytanie<Pietro>().Include(x => x.Sale).Include(x => x.PunktyRuchu).FirstOrDefaultAsync(x => x.Id == id, ct);
-        if (p is null) return WynikOperacji.Blad("", "Nie znaleziono piętra.");
-        if (p.Sale.Count > 0 || p.PunktyRuchu.Count > 0)
-        {
-            return WynikOperacji.Blad("", $"Nie można usunąć piętra „{p.Nazwa}”: ma {Odmiana.Sale(p.Sale.Count)} i {p.PunktyRuchu.Count} punktów ruchu. " +
-                "Najpierw przenieś albo dezaktywuj sale i punkty.");
-        }
-        repo.Usun(p);
+        var p = await repo.Zapytanie<Pietro>().AsNoTracking().Include(x => x.Budynek).Include(x => x.Sale).Include(x => x.PunktyRuchu)
+            .FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (p is null) return null;
+
+        var punkty = p.PunktyRuchu.Select(x => x.Id).ToList();
+        var skutki = new List<string>();
+        if (punkty.Count > 0) skutki.Add($"Znikną punkty ruchu tego piętra: {punkty.Count}.");
+        if (p.Sale.Count > 0) skutki.Add($"Znikną sale tego piętra: {p.Sale.Count} ({string.Join(", ", p.Sale.OrderBy(s => s.Symbol).Select(s => s.Symbol))}).");
+        skutki.AddRange(await OpiszSkutkiAsync(punkty, p.Sale.Select(s => s.Id).ToList(), ct));
+
+        var blokada = p.Budynek.PunktWejsciaGlownegoId is int wejscie && punkty.Contains(wejscie)
+            ? $"Na tym piętrze jest wejście główne budynku {p.Budynek.Kod}. Najpierw wybierz inne wejście główne w edycji budynku " +
+              "albo usuń cały budynek."
+            : null;
+        return new SkutkiUsuniecia($"piętro „{p.Nazwa}” w budynku {p.Budynek.Kod}", blokada, skutki);
+    }
+
+    /// <summary>Usuwa piętro razem z jego salami, punktami ruchu i wszystkim, co na nie wskazuje.</summary>
+    public async Task<(WynikOperacji Wynik, IReadOnlyList<string> PlikiZdjec)> UsunPietro(int id, CancellationToken ct = default)
+    {
+        if (await SkutkiUsunieciaPietra(id, ct) is not { } skutki) return (WynikOperacji.Blad("", "Nie znaleziono piętra."), []);
+        if (skutki.Blokada is not null) return (WynikOperacji.Blad("", skutki.Blokada), []);
+
+        await using var transakcja = await repo.RozpocznijTransakcjeAsync(ct);
+        var pliki = await UsunZawartoscAsync(
+            await repo.Zapytanie<PunktRuchu>().Where(x => x.PietroId == id).Select(x => x.Id).ToListAsync(ct),
+            await repo.Zapytanie<Sala>().Where(x => x.PietroId == id).Select(x => x.Id).ToListAsync(ct), ct);
+        repo.Usun((await repo.ZnajdzAsync<Pietro>(id, ct))!);
         await repo.ZapiszAsync(ct);
-        return WynikOperacji.Ok();
+        await transakcja.CommitAsync(ct);
+        return (WynikOperacji.Ok(), pliki);
     }
 
     // --- Sale ------------------------------------------------------------------------------------------
@@ -119,6 +196,23 @@ public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
             return WynikOperacji.Blad(nameof(Sala.PunktWejsciowyId), "Punkt wejściowy musi leżeć w tym samym budynku co sala.");
         }
         return await Zapisz(s, ct);
+    }
+
+    public async Task<SkutkiUsuniecia?> SkutkiUsunieciaSali(int id, CancellationToken ct = default)
+    {
+        var s = await repo.Zapytanie<Sala>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        return s is null ? null : new SkutkiUsuniecia($"sala {s.Symbol} — {s.Nazwa}", null, await OpiszSkutkiAsync([], [id], ct));
+    }
+
+    /// <summary>Usuwa salę razem z kierunkami „drzwi”, które do niej prowadzą, i jej zdjęciami.</summary>
+    public async Task<(WynikOperacji Wynik, IReadOnlyList<string> PlikiZdjec)> UsunSale(int id, CancellationToken ct = default)
+    {
+        if (await repo.ZnajdzAsync<Sala>(id, ct) is null) return (WynikOperacji.Blad("", "Nie znaleziono sali."), []);
+
+        await using var transakcja = await repo.RozpocznijTransakcjeAsync(ct);
+        var pliki = await UsunZawartoscAsync([], [id], ct);
+        await transakcja.CommitAsync(ct);
+        return (WynikOperacji.Ok(), pliki);
     }
 
     public Task<WynikOperacji> UstawAktywnoscSali(int id, bool aktywna, CancellationToken ct = default) =>
@@ -187,6 +281,134 @@ public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
 
     public Task<WynikOperacji> UstawAktywnoscPunktu(int id, bool aktywny, CancellationToken ct = default) =>
         UstawAktywnosc<PunktRuchu>(id, p => p.CzyAktywny = aktywny, ct);
+
+    /// <summary>Co stanie się po usunięciu punktu — do pokazania na stronie potwierdzenia; <c>null</c>, gdy punktu nie ma.</summary>
+    public async Task<SkutkiUsunieciaPunktu?> SkutkiUsunieciaPunktu(int id, CancellationToken ct = default)
+    {
+        var punkt = await repo.Zapytanie<PunktRuchu>().AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
+        if (punkt is null) return null;
+
+        var kody = await repo.Zapytanie<PunktRuchu>().AsNoTracking().ToDictionaryAsync(p => p.Id, p => p.Kod, ct);
+        return new SkutkiUsunieciaPunktu(
+            punkt.Kod,
+            punkt.Nazwa,
+            await repo.Zapytanie<Budynek>().AsNoTracking().Where(b => b.PunktWejsciaGlownegoId == id).Select(b => b.Kod).FirstOrDefaultAsync(ct),
+            await repo.Zapytanie<Kierunek>().AsNoTracking().CountAsync(k => k.PunktZrodlowyId == id, ct),
+            (await repo.Zapytanie<Kierunek>().AsNoTracking().Where(k => k.PunktDocelowyId == id).Select(k => k.PunktZrodlowyId).ToListAsync(ct))
+                .Select(z => kody[z]).Distinct().Order().ToList(),
+            await repo.Zapytanie<Sala>().AsNoTracking().Where(s => s.PunktWejsciowyId == id).OrderBy(s => s.Symbol).Select(s => s.Symbol).ToListAsync(ct),
+            await repo.Zapytanie<Zdjecie>().AsNoTracking().CountAsync(z => z.PunktRuchuId == id, ct));
+    }
+
+    /// <summary>
+    /// Usuwa punkt razem z tym, co bez niego nie ma sensu: kierunkami wychodzącymi i przychodzącymi,
+    /// jego zdjęciami i utrudnieniami. Sale, które miały tu wejście, zostają bez punktu wejściowego —
+    /// walidator grafu je wskaże. Wejścia głównego budynku usunąć się nie da: najpierw trzeba wybrać inne.
+    /// Zwraca ścieżki plików zdjęć do skasowania z dysku (po zatwierdzeniu transakcji).
+    /// </summary>
+    public async Task<(WynikOperacji Wynik, IReadOnlyList<string> PlikiZdjec)> UsunPunkt(int id, CancellationToken ct = default)
+    {
+        var punkt = await repo.ZnajdzAsync<PunktRuchu>(id, ct);
+        if (punkt is null) return (WynikOperacji.Blad("", "Nie znaleziono punktu."), []);
+
+        if (await repo.Zapytanie<Budynek>().Where(b => b.PunktWejsciaGlownegoId == id).Select(b => b.Kod).FirstOrDefaultAsync(ct) is { } kodBudynku)
+        {
+            return (WynikOperacji.Blad("", $"Punkt {punkt.Kod} jest wejściem głównym budynku {kodBudynku}. " +
+                                           "Najpierw wybierz inne wejście główne w edycji budynku."), []);
+        }
+
+        await using var transakcja = await repo.RozpocznijTransakcjeAsync(ct);
+        var pliki = await UsunZawartoscAsync([id], [], ct);
+        await transakcja.CommitAsync(ct);
+        return (WynikOperacji.Ok(), pliki);
+    }
+
+    /// <summary>
+    /// Wspólne usuwanie punktów ruchu i sal razem z tym, co na nie wskazuje. Baza niczego nie kasuje sama
+    /// (klucze obce bez kaskady), więc kolejność jest jawna:
+    /// 1) kierunki wychodzące z punktów, prowadzące do nich i drzwi do sal,
+    /// 2) sale spoza usuwanych, które miały wejście w usuwanym punkcie — zostają, bez punktu wejściowego,
+    /// 3) utrudnienia punktów, zapisane zapytania o trasę (zostają, bez wskazania sali), zdjęcia,
+    /// 4) same sale i punkty.
+    /// Zwraca ścieżki plików zdjęć do skasowania z dysku po zatwierdzeniu transakcji.
+    /// </summary>
+    private async Task<IReadOnlyList<string>> UsunZawartoscAsync(IReadOnlyCollection<int> punkty, IReadOnlyCollection<int> sale, CancellationToken ct)
+    {
+        var kierunki = await repo.Zapytanie<Kierunek>()
+            .Where(k => punkty.Contains(k.PunktZrodlowyId)
+                        || (k.PunktDocelowyId != null && punkty.Contains(k.PunktDocelowyId.Value))
+                        || (k.SalaDocelowaId != null && sale.Contains(k.SalaDocelowaId.Value)))
+            .Select(k => k.Id).ToListAsync(ct);
+        await UsunKierunkiAsync(kierunki, ct);
+
+        foreach (var sala in await repo.Zapytanie<Sala>()
+                     .Where(s => !sale.Contains(s.Id) && s.PunktWejsciowyId != null && punkty.Contains(s.PunktWejsciowyId.Value)).ToListAsync(ct))
+        {
+            sala.PunktWejsciowyId = null;
+        }
+
+        foreach (var utrudnienie in await repo.Zapytanie<Utrudnienie>()
+                     .Where(u => u.PunktRuchuId != null && punkty.Contains(u.PunktRuchuId.Value)).ToListAsync(ct))
+        {
+            repo.Usun(utrudnienie);
+        }
+
+        foreach (var zapytanie in await repo.Zapytanie<ZapytanieTrasy>()
+                     .Where(z => (z.SalaZId != null && sale.Contains(z.SalaZId.Value)) || (z.SalaDoId != null && sale.Contains(z.SalaDoId.Value))).ToListAsync(ct))
+        {
+            if (zapytanie.SalaZId is int z && sale.Contains(z)) zapytanie.SalaZId = null;
+            if (zapytanie.SalaDoId is int d && sale.Contains(d)) zapytanie.SalaDoId = null;
+        }
+
+        var zdjecia = await repo.Zapytanie<Zdjecie>()
+            .Where(z => (z.PunktRuchuId != null && punkty.Contains(z.PunktRuchuId.Value)) || (z.SalaId != null && sale.Contains(z.SalaId.Value)))
+            .ToListAsync(ct);
+        foreach (var zdjecie in zdjecia)
+        {
+            repo.Usun(zdjecie);
+        }
+        await repo.ZapiszAsync(ct);
+
+        // Najpierw sale: wskazują na punkt wejściowy, który też może być na liście.
+        foreach (var sala in await repo.Zapytanie<Sala>().Where(s => sale.Contains(s.Id)).ToListAsync(ct))
+        {
+            repo.Usun(sala);
+        }
+        await repo.ZapiszAsync(ct);
+
+        foreach (var punkt in await repo.Zapytanie<PunktRuchu>().Where(p => punkty.Contains(p.Id)).ToListAsync(ct))
+        {
+            repo.Usun(punkt);
+        }
+        await repo.ZapiszAsync(ct);
+
+        return zdjecia.Select(z => z.SciezkaPliku).ToList();
+    }
+
+    /// <summary>Skutki usunięcia punktów i sal słowami — wspólne dla sali, piętra i budynku.</summary>
+    private async Task<List<string>> OpiszSkutkiAsync(IReadOnlyCollection<int> punkty, IReadOnlyCollection<int> sale, CancellationToken ct)
+    {
+        var skutki = new List<string>();
+        var kierunki = await repo.Zapytanie<Kierunek>().AsNoTracking()
+            .CountAsync(k => punkty.Contains(k.PunktZrodlowyId)
+                             || (k.PunktDocelowyId != null && punkty.Contains(k.PunktDocelowyId.Value))
+                             || (k.SalaDocelowaId != null && sale.Contains(k.SalaDocelowaId.Value)), ct);
+        if (kierunki > 0) skutki.Add($"Znikną kierunki z nimi związane: {kierunki}.");
+
+        var bezWejscia = await repo.Zapytanie<Sala>().AsNoTracking()
+            .Where(s => !sale.Contains(s.Id) && s.PunktWejsciowyId != null && punkty.Contains(s.PunktWejsciowyId.Value))
+            .OrderBy(s => s.Symbol).Select(s => s.Symbol).ToListAsync(ct);
+        if (bezWejscia.Count > 0)
+        {
+            skutki.Add($"Sale na innych piętrach zostaną bez punktu wejściowego: {string.Join(", ", bezWejscia)}. " +
+                       "Dopóki nie wskażesz im nowego, nie da się do nich wyznaczyć trasy.");
+        }
+
+        var zdjecia = await repo.Zapytanie<Zdjecie>().AsNoTracking()
+            .CountAsync(z => (z.PunktRuchuId != null && punkty.Contains(z.PunktRuchuId.Value)) || (z.SalaId != null && sale.Contains(z.SalaId.Value)), ct);
+        if (zdjecia > 0) skutki.Add($"Znikną zdjęcia razem z plikami: {zdjecia}.");
+        return skutki;
+    }
 
     // --- Kierunki (krawędzie grafu) --------------------------------------------------------------------
 
@@ -275,7 +497,63 @@ public sealed class AdministracjaService(IAdministracjaRepozytorium repo)
         return bledy.Count > 0 ? new WynikOperacji(bledy) : await Zapisz(k, ct);
     }
 
-    /// <summary>Kierunku nie usuwamy — ustawiamy CzyAktywny (brak przejścia z opisem orientacyjnym).</summary>
+    /// <summary>
+    /// Usuwa kierunek, a na życzenie także jego kierunek powrotny. Bez tej opcji kierunek powrotny zostaje
+    /// bez pary — walidator grafu zgłosi to jako błąd, bo użytkownik przejdzie tamtędy, ale nie wróci.
+    /// </summary>
+    public async Task<WynikOperacji> UsunKierunek(int id, bool takzePowrotny, CancellationToken ct = default)
+    {
+        var kierunek = await repo.ZnajdzAsync<Kierunek>(id, ct);
+        if (kierunek is null) return WynikOperacji.Blad("", "Nie znaleziono kierunku.");
+
+        var doUsuniecia = new List<int> { id };
+        if (takzePowrotny && kierunek.KierunekPowrotnyId is int powrotny)
+        {
+            doUsuniecia.Add(powrotny);
+        }
+
+        await using var transakcja = await repo.RozpocznijTransakcjeAsync(ct);
+        await UsunKierunkiAsync(doUsuniecia, ct);
+        await transakcja.CommitAsync(ct);
+        return WynikOperacji.Ok();
+    }
+
+    /// <summary>
+    /// Usuwa kierunki razem z tym, co na nie wskazuje. Klucze obce kierunku nie mają kaskady w bazie
+    /// (dwie ścieżki do punktu ruchu to błąd SQL Server 1785), więc powiązania rozłączamy tutaj, jawnie:
+    /// 1) wskazania „kierunek powrotny” — inaczej para kierunków wskazujących na siebie nie dałaby się usunąć,
+    /// 2) utrudnienia i obszary zdjęć przypisane do kierunku,
+    /// 3) same kierunki.
+    /// </summary>
+    private async Task UsunKierunkiAsync(IReadOnlyCollection<int> ids, CancellationToken ct)
+    {
+        if (ids.Count == 0) return;
+
+        var powiazane = await repo.Zapytanie<Kierunek>()
+            .Where(k => ids.Contains(k.Id) || (k.KierunekPowrotnyId != null && ids.Contains(k.KierunekPowrotnyId.Value)))
+            .ToListAsync(ct);
+        foreach (var kierunek in powiazane)
+        {
+            kierunek.KierunekPowrotnyId = null;
+        }
+        await repo.ZapiszAsync(ct);
+
+        foreach (var utrudnienie in await repo.Zapytanie<Utrudnienie>().Where(u => u.KierunekId != null && ids.Contains(u.KierunekId.Value)).ToListAsync(ct))
+        {
+            repo.Usun(utrudnienie);
+        }
+        foreach (var obszar in await repo.Zapytanie<ObszarAktywny>().Where(o => ids.Contains(o.KierunekId)).ToListAsync(ct))
+        {
+            repo.Usun(obszar);
+        }
+        foreach (var kierunek in powiazane.Where(k => ids.Contains(k.Id)))
+        {
+            repo.Usun(kierunek);
+        }
+        await repo.ZapiszAsync(ct);
+    }
+
+    /// <summary>Dezaktywacja: kierunek zostaje jako „brak przejścia” z opisem orientacyjnym.</summary>
     public async Task<WynikOperacji> UstawAktywnoscKierunku(int id, bool aktywny, bool takzePowrotny, CancellationToken ct = default)
     {
         var k = await repo.ZnajdzAsync<Kierunek>(id, ct);

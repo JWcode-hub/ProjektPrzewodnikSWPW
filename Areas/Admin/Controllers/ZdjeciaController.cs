@@ -7,7 +7,7 @@ using PrzewodnikSWPW.Web.ViewModels.Admin;
 namespace PrzewodnikSWPW.Web.Areas.Admin.Controllers;
 
 /// <summary>
-/// Zdjęcia punktów i sal. Zdjęć nie usuwamy; pliku nie da się wymienić — dodaje się nowe zdjęcie.
+/// Zdjęcia punktów i sal. Pliku nie da się wymienić — dodaje się nowe zdjęcie, a niepotrzebne usuwa.
 /// </summary>
 [Route("admin/zdjecia")]
 public class ZdjeciaController(ZdjeciaService zdjecia) : AdminKontroler
@@ -100,6 +100,44 @@ public class ZdjeciaController(ZdjeciaService zdjecia) : AdminKontroler
         model.Szerokosc = z.Szerokosc;
         model.Wysokosc = z.Wysokosc;
         return View("Formularz", model);
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpGet("{id:int}/usun")]
+    public async Task<IActionResult> Usun(int id, CancellationToken ct)
+    {
+        if (await zdjecia.PobierzZdjecie(id, ct) is not { } z) return NotFound();
+        var wlasciciel = await zdjecia.NazwaWlasciciela(z.PunktRuchuId, z.SalaId, ct) ?? "";
+        return View("Potwierdzenie", new PotwierdzenieViewModel(
+            $"Usunięcie: {NazwyZdjec.Nazwa(z)} ({wlasciciel})",
+            $"Czy na pewno usunąć {NazwyZdjec.Nazwa(z)}: {wlasciciel}?",
+            z.CzyDekoracyjne
+                ? "To zdjęcie dekoracyjne, bez tekstu alternatywnego."
+                : $"Tekst alternatywny tego zdjęcia: „{z.TekstAlternatywny}”.",
+            null,
+            $"Tak, usuń {NazwyZdjec.Nazwa(z)}",
+            Url.Action(nameof(Usun), new { id })!,
+            Url.Action(nameof(Index), new { punkt = z.PunktRuchuId, sala = z.SalaId })!,
+            $"Anuluj i wróć do zdjęć: {wlasciciel}",
+            Skutki:
+            [
+                "Zdjęcie zniknie ze spaceru i z karty miejsca.",
+                "Plik zdjęcia zostanie skasowany z dysku — usunięcia nie da się cofnąć.",
+                "Opis miejsca, kierunki i pozostałe zdjęcia zostają bez zmian.",
+            ]));
+    }
+
+    [Authorize(Roles = Role.Administrator)]
+    [HttpPost("{id:int}/usun")]
+    [ValidateAntiForgeryToken]
+    [ActionName(nameof(Usun))]
+    public async Task<IActionResult> UsunPotwierdzone(int id, CancellationToken ct)
+    {
+        if (await zdjecia.PobierzZdjecie(id, ct) is not { } z) return NotFound();
+        var (punkt, sala, nazwa) = (z.PunktRuchuId, z.SalaId, NazwyZdjec.Nazwa(z));
+        var wynik = await zdjecia.UsunZdjecie(id, ct);
+        Komunikat(wynik.Sukces ? $"Usunięto: {nazwa}." : wynik.Bledy[0].Komunikat);
+        return RedirectToAction(nameof(Index), new { punkt, sala });
     }
 
     // --- pomocnicze --------------------------------------------------------------------------------------

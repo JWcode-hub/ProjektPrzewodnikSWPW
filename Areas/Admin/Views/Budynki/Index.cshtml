@@ -29,6 +29,7 @@
                 <td>
                     <ul class="dzialania">
                         <li><a asp-action="Edytuj" asp-route-id="@b.Id">Edytuj<span class="visually-hidden"> budynek @b.Kod</span></a></li>
+                        <li><a asp-action="Usun" asp-route-id="@b.Id">Usuń<span class="visually-hidden"> budynek @b.Kod</span></a></li>
                         @if (b.CzyAktywny)
                         {
                             <li><a asp-action="Dezaktywuj" asp-route-id="@b.Id">Dezaktywuj<span class="visually-hidden"> budynek @b.Kod</span></a></li>
