@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PrzewodnikSWPW.Web.Models;
 
@@ -8,7 +10,7 @@ namespace PrzewodnikSWPW.Web.Data;
 /// Kierunek = krawędzie. Błędne dane (azymut 45°, kierunek do dwóch celów, zdjęcie bez opisu)
 /// odrzuca sama baza — ograniczeniami CHECK i indeksami unikalnymi.
 /// </summary>
-public class PrzewodnikDbContext(DbContextOptions<PrzewodnikDbContext> options) : DbContext(options)
+public class PrzewodnikDbContext(DbContextOptions<PrzewodnikDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<Budynek> Budynki => Set<Budynek>();
     public DbSet<Pietro> Pietra => Set<Pietro>();
@@ -38,7 +40,8 @@ public class PrzewodnikDbContext(DbContextOptions<PrzewodnikDbContext> options) 
         KonfigurujUdogodnienia(modelBuilder);
         KonfigurujEksploatacje(modelBuilder);
 
-        // Tabele w liczbie pojedynczej (Budynek, a nie Budynki) — tylko encje z katalogu Models.
+        // Tabele w liczbie pojedynczej (Budynek, a nie Budynki) — tylko encje z katalogu Models;
+        // tabele kont zachowują standardowe nazwy AspNet*.
         foreach (var encja in modelBuilder.Model.GetEntityTypes()
                      .Where(e => e.ClrType.Namespace == typeof(Budynek).Namespace))
         {

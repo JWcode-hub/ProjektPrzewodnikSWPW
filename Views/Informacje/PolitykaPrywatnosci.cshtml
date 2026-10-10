@@ -6,7 +6,7 @@
 <h1>Polityka prywatności</h1>
 
 <p>Ta strona wyjaśnia, jakie dane zbiera Multimedialny przewodnik po Uczelni, po co i jak długo je przechowujemy.
-    Przewodnik nie wymaga zakładania konta, nie używa narzędzi analitycznych ani reklamowych i nie przekazuje danych
+    Zwiedzanie nie wymaga zakładania konta. Przewodnik nie używa narzędzi analitycznych ani reklamowych i nie przekazuje danych
     innym firmom.</p>
 
 <h2>Administrator danych</h2>
@@ -46,6 +46,12 @@
             <td>24 miesiące</td>
         </tr>
         <tr>
+            <th scope="row">Konto redaktora: adres e-mail, historia zmian w panelu administratora</th>
+            <td>Logowanie do panelu i rejestr zmian danych</td>
+            <td>art. 6 ust. 1 lit. f RODO — rozliczalność zmian w danych nawigacji</td>
+            <td>przez czas pełnienia funkcji redaktora</td>
+        </tr>
+        <tr>
             <th scope="row">Dzienniki serwera WWW, na którym działa przewodnik: adres IP, data i adres odwiedzonej strony</th>
             <td>Bezpieczeństwo i diagnozowanie błędów</td>
             <td>art. 6 ust. 1 lit. f RODO — bezpieczeństwo serwisu</td>
@@ -76,6 +82,11 @@
             <th scope="row"><code>.AspNetCore.Antiforgery.…</code></th>
             <td>Ochrona formularzy przed podszywaniem się pod Ciebie</td>
             <td>do zamknięcia przeglądarki</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>przewodnik_sesja</code></th>
+            <td>Zalogowanie do panelu administratora — tylko dla redaktorów</td>
+            <td>30 minut bez aktywności</td>
         </tr>
         <tr>
             <th scope="row"><code>.AspNetCore.Mvc.CookieTempDataProvider</code></th>

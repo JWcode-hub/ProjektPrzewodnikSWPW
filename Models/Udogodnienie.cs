@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrzewodnikSWPW.Web.Models;
 
-public class Udogodnienie
+public class Udogodnienie : ISlownik
 {
     public int Id { get; set; }
 

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrzewodnikSWPW.Web.Models;
 
-public class TypPunktu
+public class TypPunktu : ISlownik
 {
     public int Id { get; set; }
 
