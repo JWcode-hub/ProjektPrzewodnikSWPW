@@ -23,6 +23,25 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ISpacerRepozytorium, SpacerRepozytorium>();
 builder.Services.AddScoped<NawigacjaService>();
 
+builder.Services.AddScoped<IWyszukiwarkaRepozytorium, WyszukiwarkaRepozytorium>();
+builder.Services.AddScoped<WyszukiwarkaSalService>();
+
+// Graf budynku jest buforowany w pamięci; panel administratora unieważni go po każdej zmianie danych.
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<IGrafBudynkuCache, GrafBudynkuCache>();
+builder.Services.AddScoped<ITrasaRepozytorium, TrasaRepozytorium>();
+builder.Services.AddSingleton<GeneratorOpisuService>();
+builder.Services.AddScoped<WyszukiwarkaTrasService>();
+builder.Services.Configure<KontaktAlternatywnyOptions>(builder.Configuration.GetSection(KontaktAlternatywnyOptions.Sekcja));
+
+// Ustawienia dostępności są w ciasteczku — działają bez konta i bez JavaScriptu.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<UstawieniaDostepnosciService>();
+
+builder.Services.Configure<DeklaracjaDostepnosciOptions>(builder.Configuration.GetSection(DeklaracjaDostepnosciOptions.Sekcja));
+builder.Services.AddScoped<IZgloszeniaRepozytorium, ZgloszeniaRepozytorium>();
+builder.Services.AddScoped<ZgloszeniaService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

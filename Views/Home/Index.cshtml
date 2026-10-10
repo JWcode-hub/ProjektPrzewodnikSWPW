@@ -8,3 +8,12 @@
    jego opis i pozwala wybrać kierunek: prosto, w lewo, w prawo albo do tyłu.</p>
 <p>Został przygotowany z myślą o osobach niewidomych i słabowidzących: całość można obsłużyć samą klawiaturą
    i czytnikiem ekranu.</p>
+
+<p><a asp-controller="Spacer" asp-action="Index" class="btn btn-primary">Rozpocznij spacer po budynkach</a></p>
+
+<h2>Znajdź salę</h2>
+<partial name="_FormularzSzukania" model="(string?)null" />
+
+@section Scripts {
+    <script src="~/js/szukaj.js" asp-append-version="true"></script>
+}

@@ -31,4 +31,28 @@
   if (cel) {
     cel.focus();
   }
+
+  // Formularz ustawień: natychmiastowy podgląd wyglądu. Zapis nadal wymaga przycisku — ustawienia
+  // przechowuje ciasteczko, a serwer wpisuje je w atrybuty <html>.
+  var html = document.documentElement;
+  var formularz = document.getElementById('formularz-ustawien');
+  if (formularz) {
+    var info = document.getElementById('podglad-info');
+    if (info) { info.hidden = false; }
+
+    // ASP.NET dodaje do każdego pola wyboru ukryte pole „false” o tej samej nazwie — pytamy o sam checkbox.
+    var zaznaczone = function (nazwa) {
+      var pole = formularz.querySelector('input[type="checkbox"][name="' + nazwa + '"]');
+      return !!(pole && pole.checked);
+    };
+
+    var MOTYWY = { Systemowy: 'systemowy', Podstawowy: 'podstawowy', WysokiKontrast: 'wysoki-kontrast', Ciemny: 'ciemny' };
+
+    formularz.addEventListener('change', function () {
+      var dane = new FormData(formularz);
+      html.dataset.motyw = MOTYWY[dane.get('Motyw')] || 'systemowy';
+      html.dataset.rozmiar = dane.get('RozmiarTekstu') || '100';
+      html.dataset.animacje = zaznaczone('OgraniczAnimacje') ? 'ograniczone' : 'pelne';
+    });
+  }
 })();
