@@ -1,0 +1,84 @@
+@model MiejsceViewModel
+@{
+    // Wynik nieudanego przejścia niesie tytuł (czytany po przeładowaniu, także bez JavaScriptu)
+    // i komunikat pod listą przejść, na który trafia fokus — nie obszar aria-live.
+    ViewData["Title"] = Model.Komunikat is null ? Model.Nazwa : $"Brak przejścia – {Model.Nazwa}";
+}
+
+@* Kolejność w kodzie jest stała: nagłówek → zdjęcie → opis → przejścia. Dwie kolumny układa wyłącznie CSS
+   (.uklad-miejsca), więc kolejność czytania i tabulacji jest taka sama jak na ekranie. *@
+<h1 id="naglowek-miejsca" tabindex="-1" @(Model.Komunikat is null ? "data-fokus-po-zaladowaniu" : "")>@Model.Nazwa</h1>
+
+<div class="uklad-miejsca">
+    <div>
+        @* Punkt bez zdjęcia: ramka wyłącznie dla wzroku. To nie <figure> ani <img>, a aria-hidden usuwa ją
+           z drzewa dostępności — czytnik ekranu nie powtarza „brak zdjęcia” przy każdym kroku. *@
+        @if (Model.Zdjecia.Count == 0)
+        {
+            <div class="brak-zdjecia" aria-hidden="true">Brak zdjęcia</div>
+        }
+
+        @* width i height rezerwują miejsce, więc tekst niżej nie przeskakuje, gdy zdjęcie się doczyta. *@
+        @foreach (var (zdjecie, i) in Model.Zdjecia.Select((z, i) => (z, i)))
+        {
+            <figure>
+                <img src="@zdjecie.Src" alt="@zdjecie.Alt" width="@zdjecie.Szerokosc" height="@zdjecie.Wysokosc"
+                     class="img-fluid" loading="@(i == 0 ? "eager" : "lazy")" decoding="async" />
+                @if (zdjecie.Podpis is not null)
+                {
+                    <figcaption>@zdjecie.Podpis</figcaption>
+                }
+            </figure>
+        }
+
+        <h2>Opis miejsca</h2>
+        <p id="opis-miejsca" data-do-ogloszenia="@Model.TekstDoPrzeczytania">@Model.Opis</p>
+        <partial name="_PanelMowy" model="Model.TekstDoPrzeczytania" />
+    </div>
+
+    <div>
+        <h2>Dostępne przejścia</h2>
+        @* Zawsze cztery pozycje w kolejności: prosto, w lewo, w prawo, do tyłu. *@
+        <ul class="lista-kierunkow">
+            @foreach (var kierunek in Model.Kierunki)
+            {
+                <li data-kierunek="@kierunek.Parametr">
+                    @if (kierunek.Href is not null)
+                    {
+                        <a href="@kierunek.Href" class="kierunek">
+                            <span class="kierunek__nazwa">@kierunek.Nazwa</span>
+                            <span class="kierunek__szczegol">@kierunek.Szczegol</span>
+                        </a>
+                    }
+                    else
+                    {
+                        @* Brak przejścia: NIE link i NIE wyłączony przycisk — zwykły tekst, który czytnik zawsze przeczyta. *@
+                        <span class="kierunek kierunek--brak">
+                            <span class="kierunek__nazwa">@kierunek.Nazwa</span>
+                            @if (kierunek.Szczegol is not null)
+                            {
+                                <span class="kierunek__szczegol">@kierunek.Szczegol</span>
+                            }
+                        </span>
+                    }
+                </li>
+            }
+        </ul>
+
+        @if (Model.Komunikat is not null)
+        {
+            @* Użytkownik nie zmienił miejsca, więc fokus trafia tu, a nie na nazwę miejsca. *@
+            <p class="komunikat komunikat--blad" tabindex="-1" data-fokus-po-zaladowaniu>@Model.Komunikat</p>
+        }
+    </div>
+</div>
+
+<nav aria-label="Nawigacja pomocnicza spaceru" class="mt-4">
+    <p>@Model.NazwaBudynku, @(char.ToLowerInvariant(Model.NazwaPietra[0]) + Model.NazwaPietra[1..]).</p>
+    <p><a href="@Model.AdresBudynku">Wybierz inne miejsce startowe w budynku @Model.KodBudynku</a></p>
+</nav>
+
+@section Scripts {
+    <script src="~/js/spacer.js" asp-append-version="true"></script>
+    <script src="~/js/mowa.js" asp-append-version="true"></script>
+}

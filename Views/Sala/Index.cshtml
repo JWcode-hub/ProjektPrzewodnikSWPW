@@ -1,0 +1,64 @@
+@model SalaViewModel
+@{
+    // Symbol na początku: to on jest na drzwiach i to jego szuka użytkownik.
+    var naglowek = $"{Model.Symbol} — {Model.Nazwa}";
+    ViewData["Title"] = naglowek;
+
+    // Tylko pierwsza litera — „Korytarz przy sali A12” → „korytarz przy sali A12”, a nie „…a12”.
+    static string MalaLitera(string tekst) => tekst.Length == 0 ? tekst : char.ToLowerInvariant(tekst[0]) + tekst[1..];
+}
+
+<h1 id="naglowek-miejsca" tabindex="-1" data-fokus-po-zaladowaniu>@naglowek</h1>
+
+<p id="opis-miejsca" data-do-ogloszenia="@Model.TekstDoPrzeczytania">@Model.Opis</p>
+<partial name="_PanelMowy" model="Model.TekstDoPrzeczytania" />
+
+@foreach (var zdjecie in Model.Zdjecia)
+{
+    <figure>
+        <img src="@zdjecie.Src" alt="@zdjecie.Alt" width="@zdjecie.Szerokosc" height="@zdjecie.Wysokosc"
+             class="img-fluid" loading="lazy" decoding="async" />
+        @if (zdjecie.Podpis is not null)
+        {
+            <figcaption>@zdjecie.Podpis</figcaption>
+        }
+    </figure>
+}
+
+<h2>Informacje o sali</h2>
+<ul>
+    <li>Oznaczenie na drzwiach: @Model.Symbol</li>
+    <li>Rodzaj: @MalaLitera(Model.TypSali)</li>
+    <li>Położenie: @Model.NazwaBudynku, @MalaLitera(Model.NazwaPietra)</li>
+    @if (Model.LiczbaMiejsc is int miejsca)
+    {
+        <li>Liczba miejsc: @miejsca</li>
+    }
+    <li>@(Model.CzyDostepnaDlaWozkow ? "Sala dostępna dla osób na wózkach." : "Sala niedostępna dla osób na wózkach.")</li>
+</ul>
+
+@if (Model.Udogodnienia.Count > 0)
+{
+    <h2>Udogodnienia</h2>
+    <ul>
+        @foreach (var udogodnienie in Model.Udogodnienia)
+        {
+            <li>@udogodnienie</li>
+        }
+    </ul>
+}
+
+@if (Model.Powrot is not null)
+{
+    <h2>Dostępne przejścia</h2>
+    <ul class="lista-kierunkow">
+        <li data-kierunek="tyl">
+            <a href="@Model.Powrot.Href" class="kierunek">Wyjdź z sali — @MalaLitera(Model.Powrot.Nazwa)</a>
+        </li>
+    </ul>
+}
+
+@section Scripts {
+    <script src="~/js/spacer.js" asp-append-version="true"></script>
+    <script src="~/js/mowa.js" asp-append-version="true"></script>
+}

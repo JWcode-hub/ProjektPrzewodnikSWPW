@@ -31,15 +31,10 @@ public sealed class NawigacjaService(ISpacerRepozytorium repozytorium, TimeProvi
             .Select(wzgledny => ZbudujOpcje(punkt, wzgledny, zwrot, teraz))
             .ToList();
 
-        var zdjecia = punkt.Zdjecia
-            .OrderBy(z => z.Kolejnosc)
-            .Select(z => new ZdjecieMiejsca(z.SciezkaPliku, z.TekstAlternatywny, z.CzyDekoracyjne,
-                z.OpisRozszerzony, z.Szerokosc, z.Wysokosc))
-            .ToList();
+        var zdjecia = punkt.Zdjecia.OrderBy(z => z.Kolejnosc).Select(ZdjecieMiejsca.Z).ToList();
 
         return new WidokMiejsca(punkt.Id, punkt.Kod, punkt.Nazwa, punkt.Opis, punkt.OpisGlosowy, zwrot,
-            punkt.Pietro.Budynek.Kod, punkt.Pietro.Budynek.Nazwa, punkt.Pietro.Numer, punkt.Pietro.Nazwa,
-            zdjecia, kierunki);
+            AdresMiejsca.Z(punkt), punkt.Pietro.Budynek.Nazwa, punkt.Pietro.Nazwa, zdjecia, kierunki);
     }
 
     /// <summary>
@@ -57,15 +52,92 @@ public sealed class NawigacjaService(ISpacerRepozytorium repozytorium, TimeProvi
         }
 
         var opcja = ZbudujOpcje(punkt, kierunek, zwrot, czas.GetLocalNow().DateTime);
+        var tutaj = AdresMiejsca.Z(punkt);
         if (!opcja.CzyMozliwy)
         {
-            return new WynikPrzejscia(RodzajWynikuPrzejscia.BrakPrzejscia, punkt.Id, null, zwrot, opcja.Tekst);
+            return new WynikPrzejscia(RodzajWynikuPrzejscia.BrakPrzejscia, punkt.Id, null, zwrot, opcja.Tekst, tutaj);
         }
 
         var nowyZwrot = Azymuty.NaBezwzgledny(kierunek, zwrot);
-        return opcja.PunktDocelowyId is int docelowy
-            ? new WynikPrzejscia(RodzajWynikuPrzejscia.DoPunktu, docelowy, null, nowyZwrot, opcja.Tekst)
-            : new WynikPrzejscia(RodzajWynikuPrzejscia.DoSali, punkt.Id, opcja.SalaDocelowaId, nowyZwrot, opcja.Tekst);
+        var docelowy = punkt.KierunkiWychodzace.Single(k => k.Id == opcja.KierunekId).PunktDocelowy;
+        return docelowy is not null
+            ? new WynikPrzejscia(RodzajWynikuPrzejscia.DoPunktu, docelowy.Id, null, nowyZwrot, opcja.Tekst, AdresMiejsca.Z(docelowy))
+            : new WynikPrzejscia(RodzajWynikuPrzejscia.DoSali, punkt.Id, opcja.SalaDocelowaId, nowyZwrot, opcja.Tekst, tutaj);
+    }
+
+    public async Task<IReadOnlyList<BudynekNaLiscie>> PobierzBudynki(CancellationToken ct = default) =>
+        (await repozytorium.PobierzBudynkiAsync(ct))
+            .Select(b => new BudynekNaLiscie(b.Kod, b.Nazwa, b.Adres))
+            .ToList();
+
+    /// <summary>Opisy dostępności architektonicznej aktywnych budynków — sekcja Deklaracji Dostępności.</summary>
+    public async Task<IReadOnlyList<DostepnoscBudynku>> PobierzDostepnoscArchitektoniczna(CancellationToken ct = default) =>
+        (await repozytorium.PobierzBudynkiAsync(ct))
+            .Select(b => new DostepnoscBudynku(b.Nazwa, b.Adres, b.OpisDostepnosciArchitektonicznej))
+            .ToList();
+
+    /// <summary>
+    /// Budynek z piętrami i punktami do wyboru. Punkt startowy spaceru to wejście główne budynku;
+    /// bez ustawionego wejścia ekran pokazuje tylko listę punktów. <c>null</c>, gdy budynek nie istnieje.
+    /// </summary>
+    public async Task<WidokBudynku?> PobierzBudynek(string kodBudynku, CancellationToken ct = default)
+    {
+        var budynek = await repozytorium.PobierzBudynekAsync(kodBudynku, ct);
+        if (budynek is null)
+        {
+            return null;
+        }
+
+        var pietra = budynek.Pietra
+            .OrderBy(p => p.Numer)
+            .Select(p => new PietroNaLiscie(p.Numer, p.Nazwa, p.PunktyRuchu
+                .OrderBy(pr => pr.Kod)
+                .Select(pr => new PunktNaLiscie(AdresMiejsca.Z(budynek.Kod, p.Numer, pr.Kod), pr.Nazwa, pr.AzymutDomyslny))
+                .ToList()))
+            .ToList();
+
+        var start = budynek.PunktWejsciaGlownego is { CzyAktywny: true } wejscie
+            ? new PunktNaLiscie(AdresMiejsca.Z(budynek.Kod, wejscie.Pietro.Numer, wejscie.Kod), wejscie.Nazwa, wejscie.AzymutDomyslny)
+            : null;
+
+        return new WidokBudynku(budynek.Kod, budynek.Nazwa, budynek.Adres,
+            budynek.OpisDostepnosciArchitektonicznej, pietra, start);
+    }
+
+    public Task<int?> ZnajdzPunkt(string kodBudynku, int numerPietra, string segmentPunktu, CancellationToken ct = default) =>
+        repozytorium.ZnajdzPunktIdAsync(kodBudynku, numerPietra, segmentPunktu, ct);
+
+    /// <summary>Domyślny zwrot punktu (dla adresu bez parametru zwrot) albo <c>null</c>, gdy punkt nie istnieje.</summary>
+    public async Task<int?> DomyslnyZwrot(int punktId, CancellationToken ct = default) =>
+        (await repozytorium.PobierzPunktAsync(punktId, ct))?.AzymutDomyslny;
+
+    /// <summary>
+    /// Karta sali. Powrót prowadzi do punktu <paramref name="zPunktu"/> (albo punktu wejściowego sali)
+    /// ze zwrotem odwróconym względem wejścia — użytkownik wychodzi z sali twarzą od drzwi.
+    /// </summary>
+    public async Task<WidokSali?> PobierzSale(int salaId, int? zPunktu, int? zwrotWejscia, CancellationToken ct = default)
+    {
+        var sala = await repozytorium.PobierzSaleAsync(salaId, ct);
+        if (sala is null || !sala.CzyAktywna)
+        {
+            return null;
+        }
+
+        var punktPowrotu = zPunktu is int id && id != sala.PunktWejsciowyId
+            ? await repozytorium.PobierzPunktAsync(id, ct)
+            : sala.PunktWejsciowy;
+
+        PunktNaLiscie? powrot = punktPowrotu is { CzyAktywny: true }
+            ? new PunktNaLiscie(AdresMiejsca.Z(punktPowrotu), punktPowrotu.Nazwa, punktPowrotu.AzymutDomyslny)
+            : null;
+
+        int? zwrotPowrotu = zwrotWejscia is int zwrot ? Azymuty.Normalizuj(zwrot + 180) : powrot?.AzymutDomyslny;
+
+        return new WidokSali(sala.Id, sala.Symbol, sala.Nazwa, sala.TypSali.Nazwa, sala.Opis, sala.OpisGlosowy,
+            sala.Pietro.Budynek.Nazwa, sala.Pietro.Nazwa, sala.LiczbaMiejsc, sala.CzyDostepnaDlaWozkow,
+            sala.Zdjecia.OrderBy(z => z.Kolejnosc).Select(ZdjecieMiejsca.Z).ToList(),
+            sala.SalaUdogodnienia.Select(su => new UdogodnienieSali(su.Udogodnienie.Nazwa, su.Uwagi)).ToList(),
+            powrot, zwrotPowrotu);
     }
 
     private static OpcjaKierunku ZbudujOpcje(PunktRuchu punkt, KierunekWzgledny wzgledny, int zwrot, DateTime teraz)

@@ -221,6 +221,349 @@ a:hover {
   overflow-wrap: anywhere;
 }
 
+/* --- 9a. Formularze i przyciski ---------------------------------------------
+   Cele dotykowe min. 2.75rem (WCAG 2.5.8). */
+.btn,
+.form-control,
+.form-select {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+.form-check {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 0;
+}
+.form-check .form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  flex-shrink: 0;
+  float: none;
+}
+
+.przelacznik-motywu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+.przelacznik-motywu .form-select {
+  width: auto;
+  max-width: 100%;
+}
+
+legend {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Na telefonie przyciski na pełną szerokość. */
+@media (max-width: 575.98px) {
+  .btn {
+    width: 100%;
+  }
+}
+
+.formularz {
+  max-width: 45rem;
+}
+/* Wskazówka pod etykietą pola: mniejsza od etykiety, żeby było widać, co jest nazwą pola, a co objaśnieniem.
+   0,9rem to ok. 16 px przy domyślnym rozmiarze; kolor bez zmian, więc kontrast zostaje ten sam. */
+.wskazowka {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.przyciski-formularza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* --- 9b. Lista przejść na ekranie miejsca ----------------------------------
+   Pozycje oddzielone liniami, każda na pełną szerokość kolumny, cel min. 48 px. Dwa wiersze: nazwa
+   (czynność i cel) i szczegół. Kierunek bez przejścia jest zwykłym tekstem — różni się od linku
+   kursywą, brakiem pogrubienia i brakiem podkreślenia, nie kolorem (WCAG 1.4.1).
+   Kolory wyłącznie ze zmiennych motywu: bez osobnego „szarego” — w motywie czarno-żółtym by zniknął. */
+.lista-kierunkow {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  border-top: 2px solid var(--kolor-obramowanie);
+}
+.lista-kierunkow > li {
+  border-bottom: 2px solid var(--kolor-obramowanie);
+}
+.lista-kierunkow .kierunek {
+  display: block;
+  min-height: 3rem;
+  padding: 0.9rem 0.75rem;
+  color: var(--kolor-tekst);
+}
+.lista-kierunkow a.kierunek {
+  font-weight: 700;
+}
+.lista-kierunkow a.kierunek:hover {
+  background-color: var(--kolor-tlo-pomocnicze);
+  text-decoration-thickness: 0.2em;      /* w motywie czarno-żółtym tło pomocnicze = tło, więc także grubsze podkreślenie */
+}
+.kierunek__nazwa,
+.kierunek__szczegol {
+  display: block;
+}
+/* Podkreślona jest tylko nazwa; szczegół to zwykły tekst w tym samym linku. */
+.lista-kierunkow a.kierunek:has(.kierunek__nazwa) {
+  text-decoration: none;
+}
+.lista-kierunkow a.kierunek .kierunek__nazwa {
+  text-decoration: underline;
+  text-decoration-thickness: inherit;
+}
+.kierunek__szczegol {
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+.lista-kierunkow .kierunek--brak .kierunek__nazwa {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Ekran miejsca: zdjęcie i opis po lewej, przejścia po prawej. Kolejność w kodzie = kolejność na ekranie
+   (z góry na dół, potem prawa kolumna); na wąskim ekranie i przy dużym powiększeniu jedna kolumna. */
+.uklad-miejsca {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: start;
+}
+@media (max-width: 54em) {
+  .uklad-miejsca {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.uklad-miejsca figure {
+  margin: 0 0 1.5rem;
+}
+.uklad-miejsca figure img {
+  display: block;
+  border: 2px solid var(--kolor-obramowanie);
+  border-radius: 4px;
+}
+/* Ramka zastępcza, gdy punkt nie ma zdjęcia: napis na środku, proporcje typowego zdjęcia.
+   aspect-ratio to rozmiar preferowany, nie stała wysokość — przy dużym tekście ramka rośnie. */
+.brak-zdjecia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  border: 2px dashed var(--kolor-obramowanie);
+  border-radius: 4px;
+  background-color: var(--kolor-tlo-pomocnicze);
+  color: var(--kolor-tekst);
+  font-size: 1.25rem;
+  text-align: center;
+}
+.uklad-miejsca figcaption {
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+/* --- 9c. Trasa: podsumowanie i oś czasu ------------------------------------
+   Kropki i linia to pseudoelementy rysowane OBRAMOWANIEM, nie tłem — obramowania zostają w trybie
+   wymuszonych kolorów systemu (Windows High Contrast), a tła znikają. */
+.podsumowanie-trasy {
+  background-color: var(--kolor-tlo-pomocnicze);
+  border: 2px solid var(--kolor-obramowanie);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1.75rem;
+}
+.podsumowanie-trasy dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.75rem;
+  margin: 0;
+}
+.podsumowanie-trasy dl > div {
+  display: flex;
+  flex-wrap: wrap;
+}
+.podsumowanie-trasy dt {
+  font-weight: 700;
+}
+.podsumowanie-trasy dd {
+  margin: 0 0 0 0.35rem;
+}
+
+.trasa {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+}
+.trasa > li {
+  position: relative;
+  padding: 0 0 2.25rem 2.75rem;
+}
+/* Kropka kroku. */
+.trasa > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+  border: 0.575rem solid var(--kolor-akcent);
+  border-radius: 50%;
+}
+/* Początek i cel: pierścień wokół kropki. */
+.trasa > li:first-child::before,
+.trasa > li:last-child::before {
+  box-shadow: 0 0 0 4px var(--kolor-tlo), 0 0 0 7px var(--kolor-akcent);
+}
+/* Linia do następnego kroku — zaczyna się pod pierścieniem i kończy przed następną kropką. */
+.trasa > li::after {
+  content: "";
+  position: absolute;
+  left: 0.48rem;
+  top: 2.3rem;
+  bottom: 0.7rem;
+  border-left: 3px solid var(--kolor-obramowanie);
+}
+.trasa > li:last-child::after {
+  display: none;
+}
+.krok {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  gap: 0.35rem 1.5rem;
+  align-items: start;
+}
+@media (max-width: 54em) {
+  .krok {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+}
+.krok__punkt {
+  font-weight: 700;
+}
+.krok__rola,
+.krok__dystans {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+.krok__instrukcja {
+  margin: 0;
+}
+.btn-mowa {
+  white-space: nowrap;
+}
+
+/* --- 9d. Wyszukiwanie sal i podpowiedzi (combobox) -------------------------
+   Aktywna podpowiedź: odwrócone kolory ORAZ pogrubienie i ramka — nie sam kolor (WCAG 1.4.1). */
+.formularz-szukania {
+  max-width: 40rem;
+  margin-bottom: 1.5rem;
+}
+.pole-z-podpowiedziami {
+  position: relative;
+}
+.lista-podpowiedzi {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  background-color: var(--kolor-tlo);
+  border: 2px solid var(--kolor-tekst);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.lista-podpowiedzi [role="option"] {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+/* Najechanie myszą wygląda inaczej niż podpowiedź aktywna z klawiatury — inaczej przy kursorze
+   nad listą dwie pozycje wyglądałyby na wybrane i nie byłoby wiadomo, którą wybierze Enter. */
+.lista-podpowiedzi [role="option"]:hover {
+  border-color: var(--kolor-tekst);
+  text-decoration: underline;
+}
+.lista-podpowiedzi [role="option"][aria-selected="true"] {
+  background-color: var(--kolor-tekst);
+  color: var(--kolor-tlo);
+  font-weight: 700;
+  border-color: var(--kolor-fokus);
+  text-decoration: none;
+}
+.lista-wynikow {
+  list-style: none;
+  padding: 0;
+  max-width: 40rem;
+}
+.lista-wynikow > li {
+  border-top: 2px solid var(--kolor-obramowanie);
+  padding: 1rem 0;
+}
+.linki-wyniku {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+.linki-wyniku a {
+  display: inline-block;
+  min-height: 2.75rem;
+  padding: 0.5rem 0;
+}
+
+/* --- 9e. Odczyt opisu mową (panel widoczny tylko po włączeniu mowy w ustawieniach) --- */
+.panel-mowy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+.panel-mowy .komunikat {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* --- 9f. Komunikaty — informacja nigdy wyłącznie kolorem ------------------- */
+.komunikat {
+  border: 2px solid currentColor;
+  border-left-width: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+}
+.komunikat--sukces { color: var(--kolor-sukces); }
+.komunikat--blad { color: var(--kolor-blad); }
+.komunikat ul { margin-bottom: 0; }
+.komunikat a { color: inherit; }
+
+.komunikat-bledu {
+  color: var(--kolor-blad);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* width i height w <img> rezerwują miejsce; height: auto zachowuje proporcje przy pomniejszeniu,
+   więc tekst pod zdjęciem nie przeskakuje. */
+figure img {
+  height: auto;
+}
+
 /* --- 10. Ruch --------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -231,4 +574,12 @@ a:hover {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+html[data-animacje="ograniczone"] *,
+html[data-animacje="ograniczone"] *::before,
+html[data-animacje="ograniczone"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
