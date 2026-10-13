@@ -347,7 +347,14 @@ public sealed class KierunekFormularz : IValidatableObject
         k.SalaDocelowaId = RodzajCelu == CelSala ? SalaDocelowaId : null;
         k.Waga = Waga!.Value; k.RodzajPrzejscia = RodzajPrzejscia!.Value; k.OpisPrzejscia = OpisPrzejscia;
         k.NotatkaDojscia = string.IsNullOrWhiteSpace(NotatkaDojscia) ? null : NotatkaDojscia.Trim();
-        k.CzyAktywny = CzyAktywny; k.CzyDostepnyBezSchodow = CzyDostepnyBezSchodow;
+        k.CzyAktywny = CzyAktywny;
+        // Zapis zgodny z rodzajem przejścia, żeby w danych nie było „windy niedostępnej bez schodów”.
+        k.CzyDostepnyBezSchodow = k.RodzajPrzejscia switch
+        {
+            Models.RodzajPrzejscia.Schody => false,
+            Models.RodzajPrzejscia.Winda or Models.RodzajPrzejscia.Podjazd => true,
+            _ => CzyDostepnyBezSchodow,
+        };
         return k;
     }
 }

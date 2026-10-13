@@ -30,7 +30,17 @@ public sealed record KrawedzGrafu(
     string? NotatkaDojscia,
     IReadOnlyList<OkresUtrudnienia> Utrudnienia)
 {
-    public bool CzySchody => Rodzaj == RodzajPrzejscia.Schody || !CzyDostepnyBezSchodow;
+    /// <summary>
+    /// Czy odcinek wymaga pokonania schodów. O schodach, windzie i podjeździe przesądza rodzaj przejścia:
+    /// schody — zawsze, winda i podjazd — nigdy, bo same służą do ominięcia schodów. Pole
+    /// „dostępne bez schodów” decyduje tylko dla korytarza i drzwi (np. korytarz ze stopniami).
+    /// </summary>
+    public bool CzySchody => Rodzaj switch
+    {
+        RodzajPrzejscia.Schody => true,
+        RodzajPrzejscia.Winda or RodzajPrzejscia.Podjazd => false,
+        _ => !CzyDostepnyBezSchodow,
+    };
 }
 
 public sealed record SalaWGrafie(int Id, string Symbol, string Nazwa);

@@ -2,6 +2,10 @@
   "wersja": 1,
   "typySal": [
     {
+      "nazwa": "Pomieszczenie Administracyjne",
+      "opis": "Sekretariat, dziekanat, rekrutacja lub inne pomieszczenia administracyjne"
+    },
+    {
       "nazwa": "Pomieszczenie techniczne",
       "opis": "Niedostępne dla studentów"
     },
@@ -16,10 +20,6 @@
     {
       "nazwa": "Sala wykładowa",
       "opis": "Duża sala wykładowa"
-    },
-    {
-      "nazwa": "Sekretariat",
-      "opis": "Sekretariat lub dziekanat"
     },
     {
       "nazwa": "Toaleta",
@@ -225,6 +225,15 @@
                   "czyAktywny": true,
                   "czyDostepnyBezSchodow": true,
                   "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-0-P10",
+                  "waga": 29.00,
+                  "rodzaj": "Korytarz",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
                 }
               ]
             },
@@ -235,7 +244,18 @@
               "azymutDomyslny": 0,
               "czyAktywny": true,
               "udogodnienia": [],
-              "zdjecia": [],
+              "zdjecia": [
+                {
+                  "sciezkaPliku": "zdjecia/2c58827707a04f99ac7bf019574abb07.png",
+                  "tekstAlternatywny": "Schody",
+                  "zrodlo": "Spacer wirtualny",
+                  "licencja": "Spacer wirtualny",
+                  "szerokosc": 935,
+                  "wysokosc": 467,
+                  "kolejnosc": 0,
+                  "czyDekoracyjne": false
+                }
+              ],
               "kierunki": [
                 {
                   "azymut": 180,
@@ -245,17 +265,183 @@
                   "czyAktywny": true,
                   "czyDostepnyBezSchodow": false,
                   "azymutPowrotu": 0
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-1-P01",
+                  "waga": 2.50,
+                  "rodzaj": "Schody",
+                  "opisPrzejscia": "schody",
+                  "notatkaDojscia": "schody",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": false,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-0-P10",
+              "typ": "Przed windą",
+              "nazwa": "Korytarz zachodnie skrzydlo, przed winda",
+              "opisGlosowy": "Korytarz zachodnie skrzydlo, przed winda",
+              "azymutDomyslny": 180,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P04",
+                  "waga": 29.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "Korytarz zachodnie skrzydlo, przed winda",
+                  "notatkaDojscia": "Korytarz zachodnie skrzydlo, przed winda",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 180,
+                  "doPunktu": "A-1-P10",
+                  "waga": 0.50,
+                  "rodzaj": "Winda",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 0
                 }
               ]
             }
           ],
-          "sale": []
+          "sale": [
+            {
+              "symbol": "Rekrutacja",
+              "typ": "Pomieszczenie Administracyjne",
+              "punktWejsciowy": "A-0-P04",
+              "nazwa": "Uczelniana Komisja Rekrutacyjna, pokój nr 1",
+              "aliasy": "Rekrutacja",
+              "opis": "Rekrutacja",
+              "opisGlosowy": "Rekrutacja",
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            }
+          ]
         },
         {
           "numer": 1,
           "nazwa": "Piętro Pierwsze",
-          "punkty": [],
-          "sale": []
+          "punkty": [
+            {
+              "kod": "A-1-P01",
+              "typ": "Korytarz",
+              "nazwa": "Korytarz Zachodni, piętro 1, przed schodami",
+              "opis": "Korytarz przed schodami",
+              "azymutDomyslny": 180,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-0-P05",
+                  "waga": 2.50,
+                  "rodzaj": "Schody",
+                  "opisPrzejscia": "Schody",
+                  "notatkaDojscia": "Schody",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": false,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-1-P02",
+                  "waga": 1.00,
+                  "rodzaj": "Korytarz",
+                  "opisPrzejscia": "korytarz",
+                  "notatkaDojscia": "korytarz",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-1-P02",
+              "typ": "Korytarz",
+              "nazwa": "Korytarz zachodni, piętro 1",
+              "opis": "Korytarz",
+              "opisGlosowy": "Korytarz",
+              "azymutDomyslny": 270,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-1-P01",
+                  "waga": 1.00,
+                  "rodzaj": "Korytarz",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                },
+                {
+                  "azymut": 270,
+                  "doPunktu": "A-1-P10",
+                  "waga": 28.00,
+                  "rodzaj": "Korytarz",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 90
+                }
+              ]
+            },
+            {
+              "kod": "A-1-P10",
+              "typ": "Przed windą",
+              "nazwa": "Korytarz zachodnie skrzydlo, przed winda, pietro 1",
+              "opis": "Korytarz zachodnie skrzydlo, przed winda, pietro 1",
+              "azymutDomyslny": 180,
+              "czyAktywny": true,
+              "udogodnienia": [],
+              "zdjecia": [],
+              "kierunki": [
+                {
+                  "azymut": 0,
+                  "doPunktu": "A-0-P10",
+                  "waga": 0.50,
+                  "rodzaj": "Winda",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 180
+                },
+                {
+                  "azymut": 90,
+                  "doPunktu": "A-1-P02",
+                  "waga": 28.00,
+                  "rodzaj": "Korytarz",
+                  "czyAktywny": true,
+                  "czyDostepnyBezSchodow": true,
+                  "azymutPowrotu": 270
+                }
+              ]
+            }
+          ],
+          "sale": [
+            {
+              "symbol": "A26",
+              "typ": "Sala komputerowa",
+              "punktWejsciowy": "A-1-P02",
+              "nazwa": "Sala Komputerowa A26",
+              "opis": "Sala Komputerowa",
+              "opisGlosowy": "Sala Komputerowa",
+              "czyDostepnaDlaWozkow": true,
+              "czyAktywna": true,
+              "udogodnienia": [],
+              "zdjecia": []
+            }
+          ]
         }
       ]
     }
